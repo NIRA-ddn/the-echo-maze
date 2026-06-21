@@ -98,7 +98,7 @@
         var errorMessage = document.getElementById("errorMessage");
         var downloadSection = document.getElementById("downloadSection");
 
-        var correctHash = "f192b67f18b5ea3f441589ff210ff447db480d195f2425a740751e1bb8cfbc6a"; // "dedunu"
+        var correctHash = "f192b67f18b5ea3f441589ff210ff447db480d195f2425a740751e1bb8cfbc6a";
         var userHash = CryptoJS.SHA256(userInput).toString();
 
         if (userHash === correctHash) {
