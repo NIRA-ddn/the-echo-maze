@@ -28,9 +28,10 @@
             z-index: 99; background-size: 100% 4px, 4px 100%; pointer-events: none;
         }
 
+        /* MATRIX & CLOUD CANVAS */
         #matrixCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; opacity: 0.35; pointer-events: none;
+            z-index: 1; opacity: 0.4; pointer-events: none;
         }
 
         /* OUTER SCI-FI FRAME */
@@ -50,7 +51,7 @@
         /* MAIN STATIONS CONTAINER */
         .container {
             border: 1px solid rgba(0, 255, 51, 0.3); padding: 30px;
-            background-color: rgba(2, 2, 2, 0.93); border-radius: 6px;
+            background-color: rgba(2, 2, 2, 0.94); border-radius: 6px;
             position: relative; z-index: 5; backdrop-filter: blur(8px);
             max-width: 600px; width: 85%; max-height: 85vh;
             overflow-y: auto; text-align: center; box-sizing: border-box;
@@ -99,30 +100,22 @@
 
         .cyber-eye {
             width: 100%; height: auto; display: block;
-            /* රූපය PIXELATED කොටු බවට පත් කරන මැජික් ෆිල්ටර් කෝඩ් එක */
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             filter: grayscale(100%) brightness(1.3) contrast(2.5) sepia(100%) hue-rotate(90deg) saturate(600%);
-            mix-blend-mode: screen;
-            opacity: 0.9;
+            mix-blend-mode: screen; opacity: 0.9;
         }
 
-        /* DIGITAL MICRO-GRID OVERLAY (තද කොටු කොටු පෙනෙන ලේයර් එක) */
         .grid-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(0, 255, 51, 0.3) 1.5px, transparent 1.5px),
-                linear-gradient(90deg, rgba(0, 255, 51, 0.3) 1.5px, transparent 1.5px);
-            background-size: 8px 8px; /* කොටු කුඩා කර පික්සල් ගතිය වැඩි කලා */
-            pointer-events: none; z-index: 3;
+            background-image: linear-gradient(rgba(0, 255, 51, 0.3) 1.5px, transparent 1.5px),
+                              linear-gradient(90deg, rgba(0, 255, 51, 0.3) 1.5px, transparent 1.5px);
+            background-size: 8px 8px; pointer-events: none; z-index: 3;
         }
 
-        /* ඇස උඩින් දුවන SCANLINE LINE */
         .cyber-eye-container::after {
-            content: ''; position: absolute;
-            top: 0; left: 0; width: 100%; height: 8px;
-            background: rgba(0, 255, 51, 0.9);
-            box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color);
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+            background: rgba(0, 255, 51, 0.9); box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color);
             animation: cyberScan 2s linear infinite; z-index: 4;
         }
 
@@ -150,12 +143,7 @@
             0% { opacity: 0.7; text-shadow: 0 0 10px #00ff33; }
             100% { opacity: 1; text-shadow: 0 0 25px #00ff33, 0 0 40px #00ff33; }
         }
-        @keyframes cyberScan {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
-        }
-        /* ඩිජිටල් ඇස ලාවට හොලවන GLITCH SHAKE ඇනිමේෂන් එක */
+        @keyframes cyberScan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
         @keyframes eyeGlitchShake {
             0%, 93%, 98%, 100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
             94% { transform: translate(-2px, 1px); filter: hue-rotate(30deg); }
@@ -192,7 +180,6 @@
         <span id="liveMetrics">CORE_LOAD: STABLE</span>
     </div>
 
-    <!-- MAIN PUZZLE SCREEN -->
     <div id="puzzleSection">
         <h1>[ Project: ECHO REVEAL ]</h1>
         <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
@@ -205,12 +192,11 @@
         <div id="errorMessage" class="error"></div>
     </div>
 
-    <!-- REVEAL PANEL WITH PIXEL MATRIX ART -->
     <div id="downloadSection">
         <div class="congrats-text">> CONGRATULATIONS &lt;</div>
         
         <div class="cyber-eye-container">
-            <div class="grid-overlay"></div> <!-- කුඩා කොටු ජාලය -->
+            <div class="grid-overlay"></div>
             <img src="eye.png" alt="Cyber Pixel Eyes" class="cyber-eye">
         </div>
 
@@ -249,14 +235,12 @@
             osc.frequency.setValueAtTime(850, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         } catch(e){}
     }
 
-    // --- MATRIX CANVAS ---
+    // --- MATRIX CANVAS & FLOATING CYBER CLOUDS SYSTEM ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
     let mouseX = -1000, mouseY = -1000;
@@ -266,17 +250,55 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    // Matrix Setup
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const charArr = chars.split("");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
-    function drawMatrix() {
+    // Cyber Clouds Particles Setup
+    const cloudSymbols = ["☁", "☁•", "[☁]", "•☁•", "☁_01"];
+    const cloudsList = [];
+    const maxClouds = 12; // ස්ක්‍රීන් එකේ එකපාර පාවෙන උපරිම වලාකුළු ගණන
+
+    for (let i = 0; i < maxClouds; i++) {
+        cloudsList.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            speed: 0.3 + Math.random() * 0.6,
+            text: cloudSymbols[Math.floor(Math.random() * cloudSymbols.length)],
+            size: 16 + Math.floor(Math.random() * 20),
+            opacity: 0.12 + Math.random() * 0.15
+        });
+    }
+
+    function renderBackground() {
+        // Trail effect
         ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = fontSize + 'px monospace';
 
+        // 1. DRAW FLOATING CYBER CLOUDS (පළමුව වලාකුළු පසුබිමෙන් ඇඳීම)
+        for (let i = 0; i < cloudsList.length; i++) {
+            let cloud = cloudsList[i];
+            ctx.font = cloud.size + 'px monospace';
+            ctx.fillStyle = `rgba(0, 255, 51, ${cloud.opacity})`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00ff33';
+            ctx.fillText(cloud.text, cloud.x, cloud.y);
+            ctx.shadowBlur = 0; // reset
+
+            // වමට හෝ දකුණට මෘදුව පාවීම
+            cloud.x += cloud.speed;
+            // ස්ක්‍රීන් එකෙන් පිට වුනොත් වමේ සිට නැවත පැමිණීම
+            if (cloud.x > canvas.width + 100) {
+                cloud.x = -100;
+                cloud.y = Math.random() * canvas.height;
+            }
+        }
+
+        // 2. DRAW MATRIX FALLING CODE (ඉන්පසු මැට්‍රික්ස් කෝඩ් ඇඳීම)
+        ctx.font = fontSize + 'px monospace';
         for (let i = 0; i < drops.length; i++) {
             const text = charArr[Math.floor(Math.random() * charArr.length)];
             const x = i * fontSize; const y = drops[i] * fontSize;
@@ -285,14 +307,14 @@
             if (dist < 120) {
                 ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 25; ctx.shadowColor = '#00ff33';
             } else {
-                ctx.fillStyle = 'rgba(0, 255, 51, 0.6)'; ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(0, 255, 51, 0.5)'; ctx.shadowBlur = 0;
             }
             ctx.fillText(text, x, y);
             if (y > canvas.height && Math.random() * 0.975 > 0.95) drops[i] = 0;
             drops[i]++;
         }
     }
-    setInterval(drawMatrix, 33);
+    setInterval(renderBackground, 33);
 
     // --- PUZZLE REVEAL LOGIC ---
     function checkPuzzle() {
@@ -311,7 +333,6 @@
             // AUDIO SWITCH
             myAudio.pause();
             successAudio.play().catch(e => console.log("Success audio play error"));
-
         } else {
             errorMessage.innerHTML = "ACCESS DENIED: INVALID DECRYPTION KEY.";
             downloadSection.style.display = "none";
