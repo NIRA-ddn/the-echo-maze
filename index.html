@@ -134,4 +134,355 @@
             text-shadow: 0 0 15px #00ff33, 0 0 30px #00ff33; animation: pulseText 1.5s infinite alternate; margin-bottom: 10px;
         }
 
-        .footer { margin-top: 25px; font-size: 12px; color: rgba(0, 255, 51, 0.9); font-
+        .footer { margin-top: 25px; font-size: 12px; color: rgba(0, 255, 51, 0.9); font-weight: bold; letter-spacing: 2px; }
+
+        @keyframes glitchEffect {
+            0%, 100% { transform: none; text-shadow: 0 0 15px var(--glow-color); }
+            95% { transform: none; }
+            96% { transform: skewX(-15deg); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
+            97% { transform: skewX(10deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
+            98% { transform: none; }
+        }
+        @keyframes fadeInGlitch { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes pulseText { 0% { opacity: 0.7; } 100% { opacity: 1; text-shadow: 0 0 25px #00ff33; } }
+        @keyframes cyberScan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+        @keyframes flashRed { 0% { background: #050505; } 100% { background: #200000; } }
+        @keyframes eyeGlitchShake {
+            0%, 93%, 98%, 100% { transform: translate(0, 0); }
+            94% { transform: translate(-2px, 1px); }
+            95% { transform: translate(2px, -1px); }
+        }
+    </style>
+</head>
+<body>
+
+<audio id="bgMusic" src="Audio.mp3" loop></audio>
+<audio id="successMusic" src="Success.mp3"></audio>
+
+<div id="bootTerminal">
+    <div id="line1" class="boot-line">>> INITIALIZING BOOT CORE...</div>
+    <div id="line2" class="boot-line"></div>
+    <div id="line3" class="boot-line"></div>
+    <div id="line4" class="boot-line"></div>
+</div>
+
+<div class="cyber-frame">
+    <div class="cyber-corner top-left"></div>
+    <div class="cyber-corner top-right"></div>
+    <div class="cyber-corner bottom-left"></div>
+    <div class="cyber-corner bottom-right"></div>
+</div>
+
+<canvas id="matrixCanvas"></canvas>
+
+<div class="container" id="mainContainer">
+    <div class="system-hud">
+        <span id="statusHud">SYS_STATUS: ONLINE // BY_NIRA</span>
+        <span id="liveMetrics">CORE_LOAD: STABLE</span>
+    </div>
+
+    <div id="puzzleSection">
+        <h1>[ Project: ECHO REVEAL ]</h1>
+        <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
+        <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
+        <form onsubmit="event.preventDefault(); checkPuzzle();">
+            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off" onfocus="playBeep()">
+            <br>
+            <button type="submit" onmouseenter="playBeep()">Execute Decrypt</button>
+        </form>
+        <div id="errorMessage" class="error"></div>
+    </div>
+
+    <div id="progressSection">
+        <div class="progress-text" id="progressStatus">DECRYPTING ARCHIVE CORES...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="pBar"></div>
+        </div>
+        <div class="progress-text" id="pPercentage">0%</div>
+    </div>
+
+    <div id="lockdownSection">
+        <div class="lockdown-title">🚨 SYSTEM LOCKDOWN 🚨</div>
+        <p style="color: #ff3333; font-weight: bold; margin-top: 20px; font-size: 14px;">MAXIMUM DECRYPTION ATTEMPTS EXCEEDED.</p>
+        <p style="color: #ffffff; font-size: 12px;">SELF-DESTRUCT SEQUENCE HAS BEEN TRIGGERED. ALL VAULT DATA PURGED.</p>
+    </div>
+
+    <div id="downloadSection">
+        <div class="congrats-text">> ACCESS GRANTED &lt;</div>
+        <div class="cyber-eye-container">
+            <div class="grid-overlay"></div>
+            <img src="eye.png" alt="Cyber Pixel Eyes" class="cyber-eye">
+        </div>
+        <p style="color: #00ff33; font-weight: bold; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px;">THE SECRET ARCHIVE IS FULLY DECRYPTED.</p>
+        <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn" onmouseenter="playBeep()">Download Vault.7z (90MB)</a>
+    </div>
+
+    <div class="footer">© 2026 NIRA. All Rights Reserved.</div>
+</div>
+
+<script>
+    const myAudio = document.getElementById("bgMusic");
+    const successAudio = document.getElementById("successMusic");
+    let hasInteracted = false;
+    let isDecrypted = false;
+    let failCount = 0;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep() {
+        try {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        } catch(e){}
+    }
+
+    function playGlitchSound() {
+        try {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120 + Math.random() * 300, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+        } catch(e){}
+    }
+
+    function playSiren() {
+        setInterval(() => {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e){}
+        }, 600);
+    }
+
+    function typeWriter(text, elementId, speed, callback) {
+        let i = 0;
+        let elem = document.getElementById(elementId);
+        if(!elem) return;
+        elem.innerHTML = "";
+        function type() {
+            if (i < text.length) {
+                elem.innerHTML += text.charAt(i);
+                i++;
+                if (i % 3 === 0) playBeep();
+                setTimeout(type, speed);
+            } else if (callback) {
+                callback();
+            }
+        }
+        type();
+    }
+
+    // --- MATRIX CANVAS & KINETIC BOUNCE ENGINE ---
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    let mouseX = -1000, mouseY = -1000;
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const charArr = chars.split("");
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    const cyberPool = ["☁", "[☁]", "☁•", "7", "[7]", "•7•", "🕒", "⏱", "[CLK]"];
+    const particles = [];
+    const maxParticles = 22;
+
+    for (let i = 0; i < maxParticles; i++) {
+        let size = 18 + Math.floor(Math.random() * 16);
+        particles.push({
+            x: Math.random() * (canvas.width - 100) + 50,
+            y: Math.random() * (canvas.height - 100) + 50,
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3,
+            text: cyberPool[Math.floor(Math.random() * cyberPool.length)],
+            size: size,
+            radius: size * 0.8,
+            opacity: 0.12 + Math.random() * 0.15,
+            isGlitched: false,
+            glitchTimer: 0
+        });
+    }
+
+    function handleCollisions() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                let p1 = particles[i]; let p2 = particles[j];
+                let dx = p2.x - p1.x; let dy = p2.y - p1.y;
+                let distance = Math.hypot(dx, dy);
+                let minDist = p1.radius + p2.radius;
+
+                if (distance < minDist) {
+                    let tempVx = p1.vx; let tempVy = p1.vy;
+                    p1.vx = p2.vx; p1.vy = p2.vy;
+                    p2.vx = tempVx; p2.vy = tempVy;
+                    let overlap = minDist - distance;
+                    let overlapX = (dx / distance) * overlap * 0.5;
+                    let overlapY = (dy / distance) * overlap * 0.5;
+                    p1.x -= overlapX; p1.y -= overlapY;
+                    p2.x += overlapX; p2.y += overlapY;
+                }
+            }
+        }
+    }
+
+    function renderBackground() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        handleCollisions();
+
+        for (let i = 0; i < particles.length; i++) {
+            let p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+
+            if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
+            if (p.x + p.radius > canvas.width) { p.x = canvas.width - p.radius; p.vx *= -1; }
+            if (p.y - p.radius < 0) { p.y = p.radius; p.vy *= -1; }
+            if (p.y + p.radius > canvas.height) { p.y = canvas.height - p.radius; p.vy *= -1; }
+
+            let mDist = Math.hypot(p.x - mouseX, p.y - mouseY);
+            if (mDist < p.radius + 15 && !p.isGlitched) {
+                p.isGlitched = true;
+                p.glitchTimer = 25;
+                p.vx *= -1.8; p.vy *= -1.8;
+                playGlitchSound();
+            }
+
+            ctx.font = p.size + 'px monospace';
+            if (p.isGlitched && p.glitchTimer > 0) {
+                ctx.fillStyle = `rgba(255, 51, 51, 0.8)`;
+                p.glitchTimer--;
+                if(p.glitchTimer === 0) p.isGlitched = false;
+            } else {
+                ctx.fillStyle = failCount >= 3 ? `rgba(255, 0, 0, ${p.opacity})` : `rgba(0, 255, 51, ${p.opacity})`;
+            }
+            
+            ctx.shadowBlur = p.isGlitched ? 15 : 8;
+            ctx.shadowColor = p.isGlitched ? '#ff0000' : '#00ff33';
+            ctx.fillText(p.text, p.x, p.y);
+            ctx.shadowBlur = 0;
+        }
+
+        // MATRIX GRID LAYER
+        ctx.font = fontSize + 'px monospace';
+        for (let i = 0; i < drops.length; i++) {
+            const text = charArr[Math.floor(Math.random() * charArr.length)];
+            const x = i * fontSize; const y = drops[i] * fontSize;
+            const dist = Math.hypot(x - mouseX, y - mouseY);
+            
+            if (dist < 120) {
+                ctx.fillStyle = failCount >= 3 ? '#ff9999' : '#ffffff'; ctx.shadowBlur = 25; ctx.shadowColor = failCount >= 3 ? '#ff0000' : '#00ff33';
+            } else {
+                ctx.fillStyle = failCount >= 3 ? 'rgba(255, 51, 51, 0.4)' : 'rgba(0, 255, 51, 0.5)'; ctx.shadowBlur = 0;
+            }
+            ctx.fillText(text, x, y);
+            if (y > canvas.height && Math.random() * 0.975 > 0.95) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(renderBackground, 33);
+
+    function checkPuzzle() {
+        if (failCount >= 3) return;
+
+        var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
+        var errorMessage = document.getElementById("errorMessage");
+        var puzzleSection = document.getElementById("puzzleSection");
+        var progressSection = document.getElementById("progressSection");
+        var downloadSection = document.getElementById("downloadSection");
+        var secretToken = "ZGVkdW51"; 
+
+        if (btoa(userInput) === secretToken) {
+            isDecrypted = true;
+            errorMessage.innerHTML = "";
+            puzzleSection.style.display = "none";
+            progressSection.style.display = "block";
+
+            let width = 0;
+            let bar = document.getElementById("pBar");
+            let percentText = document.getElementById("pPercentage");
+            
+            let interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    progressSection.style.display = "none";
+                    downloadSection.style.display = "block";
+                    myAudio.pause();
+                    successAudio.play().catch(e => console.log("Audio Error"));
+                } else {
+                    width += 2;
+                    bar.style.width = width + '%';
+                    percentText.innerText = width + '%';
+                    if(width % 10 === 0) playBeep();
+                }
+            }, 40);
+
+        } else {
+            failCount++;
+            if (failCount >= 3) {
+                puzzleSection.style.display = "none";
+                document.getElementById("lockdownSection").style.display = "block";
+                document.getElementById("statusHud").innerText = "SYS_STATUS: CRITICAL_LOCKDOWN";
+                document.getElementById("statusHud").style.color = "#ff3333";
+                document.getElementById("liveMetrics").innerText = "CORE_LOAD: OVERLOADED";
+                document.getElementById("liveMetrics").style.color = "#ff3333";
+                myAudio.pause();
+                playSiren();
+            } else {
+                errorMessage.innerHTML = `ACCESS DENIED: INVALID KEY. ATTEMPTS REMAINING: ${3 - failCount}`;
+            }
+        }
+    }
+
+    // EXECUTE IMMEDIATELY ON LOAD WITHOUT WAITING FOR DOM LISTENERS
+    window.addEventListener('click', () => {
+        if (!hasInteracted) {
+            myAudio.play().catch(e => console.log("Music ready"));
+            hasInteracted = true;
+        }
+    }, { once: true });
+
+    // Start Boot Script safely
+    setTimeout(() => {
+        typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 20, () => {
+            setTimeout(() => {
+                typeWriter(">> DEPLOYING KINETIC SECURITY SYMBOLS...", "line3", 20, () => {
+                    setTimeout(() => {
+                        typeWriter(">> CORES STABLE. DECRYPTOR INTERFACE MOUNTED.", "line4", 20, () => {
+                            setTimeout(() => {
+                                document.getElementById("bootTerminal").style.display = "none";
+                                document.getElementById("mainContainer").style.display = "block";
+                            }, 600);
+                        });
+                    }, 300);
+                });
+            }, 300);
+        });
+    }, 400);
+</script>
+</body>
+</html>
