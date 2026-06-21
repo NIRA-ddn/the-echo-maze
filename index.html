@@ -36,11 +36,11 @@
         /* BOOT TERMINAL OVERLAY */
         #bootTerminal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000; z-index: 100; padding: 40px;
+            background-color: #000; z-index: 100; padding: 45px;
             box-sizing: border-box; display: flex; flex-direction: column;
             justify-content: flex-start; align-items: flex-start; font-size: 16px;
         }
-        .boot-line { margin-bottom: 10px; min-height: 20px; width: 0; overflow: hidden; white-space: nowrap; border-right: 2px solid var(--glow-color); }
+        .boot-line { margin-bottom: 12px; min-height: 22px; font-weight: bold; letter-spacing: 1px; color: var(--glow-color); }
 
         /* OUTER SCI-FI FRAME */
         .cyber-frame {
@@ -134,145 +134,4 @@
             text-shadow: 0 0 15px #00ff33, 0 0 30px #00ff33; animation: pulseText 1.5s infinite alternate; margin-bottom: 10px;
         }
 
-        .footer { margin-top: 25px; font-size: 12px; color: rgba(0, 255, 51, 0.9); font-weight: bold; letter-spacing: 2px; }
-
-        @keyframes glitchEffect {
-            0%, 100% { transform: none; text-shadow: 0 0 15px var(--glow-color); }
-            95% { transform: none; }
-            96% { transform: skewX(-15deg); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
-            97% { transform: skewX(10deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
-            98% { transform: none; }
-        }
-        @keyframes fadeInGlitch { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-        @keyframes pulseText { 0% { opacity: 0.7; } 100% { opacity: 1; text-shadow: 0 0 25px #00ff33; } }
-        @keyframes cyberScan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
-        @keyframes flashRed { 0% { background: #050505; } 100% { background: #200000; } }
-        @keyframes eyeGlitchShake {
-            0%, 93%, 98%, 100% { transform: translate(0, 0); }
-            94% { transform: translate(-2px, 1px); }
-            95% { transform: translate(2px, -1px); }
-        }
-    </style>
-</head>
-<body>
-
-<audio id="bgMusic" src="Audio.mp3" loop></audio>
-<audio id="successMusic" src="Success.mp3"></audio>
-
-<div id="bootTerminal" onclick="triggerBootSequence()">
-    <div id="line1" class="boot-line"></div>
-    <div id="line2" class="boot-line"></div>
-    <div id="line3" class="boot-line"></div>
-    <div id="line4" class="boot-line"></div>
-</div>
-
-<div class="cyber-frame">
-    <div class="cyber-corner top-left"></div>
-    <div class="cyber-corner top-right"></div>
-    <div class="cyber-corner bottom-left"></div>
-    <div class="cyber-corner bottom-right"></div>
-</div>
-
-<canvas id="matrixCanvas"></canvas>
-
-<div class="container" id="mainContainer">
-    <div class="system-hud">
-        <span id="statusHud">SYS_STATUS: ONLINE // BY_NIRA</span>
-        <span id="liveMetrics">CORE_LOAD: STABLE</span>
-    </div>
-
-    <div id="puzzleSection">
-        <h1>[ Project: ECHO REVEAL ]</h1>
-        <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
-        <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
-        <form onsubmit="event.preventDefault(); checkPuzzle();">
-            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off" onfocus="playBeep()">
-            <br>
-            <button type="submit" onmouseenter="playBeep()">Execute Decrypt</button>
-        </form>
-        <div id="errorMessage" class="error"></div>
-    </div>
-
-    <div id="progressSection">
-        <div class="progress-text" id="progressStatus">DECRYPTING ARCHIVE CORES...</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="pBar"></div>
-        </div>
-        <div class="progress-text" id="pPercentage">0%</div>
-    </div>
-
-    <div id="lockdownSection">
-        <div class="lockdown-title">🚨 SYSTEM LOCKDOWN 🚨</div>
-        <p style="color: #ff3333; font-weight: bold; margin-top: 20px; font-size: 14px;">MAXIMUM DECRYPTION ATTEMPTS EXCEEDED.</p>
-        <p style="color: #ffffff; font-size: 12px;">SELF-DESTRUCT SEQUENCE HAS BEEN TRIGGERED. ALL VAULT DATA PURGED.</p>
-    </div>
-
-    <div id="downloadSection">
-        <div class="congrats-text">> ACCESS GRANTED &lt;</div>
-        <div class="cyber-eye-container">
-            <div class="grid-overlay"></div>
-            <img src="eye.png" alt="Cyber Pixel Eyes" class="cyber-eye">
-        </div>
-        <p style="color: #00ff33; font-weight: bold; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px;">THE SECRET ARCHIVE IS FULLY DECRYPTED.</p>
-        <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn" onmouseenter="playBeep()">Download Vault.7z (90MB)</a>
-    </div>
-
-    <div class="footer">© 2026 NIRA. All Rights Reserved.</div>
-</div>
-
-<script>
-    const myAudio = document.getElementById("bgMusic");
-    const successAudio = document.getElementById("successMusic");
-    let hasInteracted = false;
-    let isDecrypted = false;
-    let failCount = 0;
-    let bootStarted = false;
-
-    // --- TERMINAL BOOT EFFECT ---
-    const bootLines = [
-        { id: "line1", text: ">> SYSTEM INITIALIZING...", delay: 600 },
-        { id: "line2", text: ">> LOADING VAULT CORES [OK]", delay: 1300 },
-        { id: "line3", text: ">> DEPLOYING KINETIC SECURITY LAYER...", delay: 2000 },
-        { id: "line4", text: ">> CORE STABLE. REDIRECTING TO INTERFACE...", delay: 2800 }
-    ];
-
-    window.onload = () => {
-        document.getElementById("bootTerminal").innerHTML = "<div style='color:#00ff33; cursor:pointer; font-weight:bold;'>[ CLICK ANYWHERE TO INITIALIZE BOOT SEQUENCE ]</div>";
-    };
-
-    function triggerBootSequence() {
-        if (bootStarted) return;
-        bootStarted = true;
-        document.getElementById("bootTerminal").innerHTML = `
-            <div id="line1" class="boot-line"></div>
-            <div id="line2" class="boot-line"></div>
-            <div id="line3" class="boot-line"></div>
-            <div id="line4" class="boot-line"></div>`;
-        
-        startMusic();
-        
-        bootLines.forEach(line => {
-            setTimeout(() => {
-                let el = document.getElementById(line.id);
-                if(el) {
-                    el.style.width = "100%";
-                    el.innerText = line.text;
-                    playBeep();
-                }
-            }, line.delay);
-        });
-
-        setTimeout(() => {
-            document.getElementById("bootTerminal").style.display = "none";
-            document.getElementById("mainContainer").style.display = "block";
-        }, 3800);
-    }
-
-    function startMusic() {
-        if (!hasInteracted && !isDecrypted) {
-            myAudio.play().catch(e => console.log("Audio playing..."));
-            hasInteracted = true;
-        }
-    }
-
-    const audioCtx = new
+        .footer { margin-top: 25px; font-size: 12px; color: rgba(0, 255, 51, 0.9); font-
