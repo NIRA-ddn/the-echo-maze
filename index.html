@@ -13,174 +13,102 @@
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: var(--bg-color);
-            color: var(--glow-color);
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            background-color: var(--bg-color); color: var(--glow-color);
             font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* මුළු ස්ක්‍රීන් එකම එකම මට්ටමක තබා ගැනීමට */
-            position: relative;
-            box-sizing: border-box;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative; box-sizing: border-box;
         }
 
         /* CRT MONITOR GRID OVERLAY */
         body::before {
-            content: " ";
-            display: block;
-            position: fixed;
+            content: " "; display: block; position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 99;
-            background-size: 100% 4px, 4px 100%;
-            pointer-events: none;
+            z-index: 99; background-size: 100% 4px, 4px 100%; pointer-events: none;
         }
 
         #matrixCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.35; 
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; opacity: 0.35; pointer-events: none;
         }
 
-        /* FULL SCREEN CYBER HUD FRAME (image_5e2923.jpg එකේ වගේමයි) */
+        /* OUTER SCI-FI FRAME */
         .cyber-frame {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
+            position: fixed; top: 15px; left: 15px; right: 15px; bottom: 15px;
             border: 2px solid rgba(0, 255, 51, 0.4);
             box-shadow: 0 0 20px rgba(0, 255, 51, 0.15), inset 0 0 20px rgba(0, 255, 51, 0.15);
-            pointer-events: none;
-            z-index: 10;
-            border-radius: 12px;
+            pointer-events: none; z-index: 10; border-radius: 12px;
         }
         
-        /* FRAME CORNER CUTS */
-        .cyber-corner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 4px solid var(--glow-color);
-        }
+        .cyber-corner { position: absolute; width: 30px; height: 30px; border: 4px solid var(--glow-color); }
         .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
         .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
         .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
         .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
 
-        /* MAIN STATION CONTAINER */
+        /* MAIN STATIONS CONTAINER */
         .container {
-            border: 1px solid rgba(0, 255, 51, 0.3);
-            padding: 30px;
-            background-color: rgba(2, 2, 2, 0.93);
-            border-radius: 6px;
-            position: relative;
-            z-index: 5;
-            backdrop-filter: blur(8px);
-            max-width: 600px;
-            width: 85%;
-            max-height: 85vh; /* හැම ඩිවයිස් එකකම Screen එක ඇතුලට Fit වීම සඳහා */
-            overflow-y: auto;
-            text-align: center;
-            box-sizing: border-box;
+            border: 1px solid rgba(0, 255, 51, 0.3); padding: 30px;
+            background-color: rgba(2, 2, 2, 0.93); border-radius: 6px;
+            position: relative; z-index: 5; backdrop-filter: blur(8px);
+            max-width: 600px; width: 85%; max-height: 85vh;
+            overflow-y: auto; text-align: center; box-sizing: border-box;
             box-shadow: 0 0 40px rgba(0, 255, 51, 0.2);
         }
 
         .system-hud {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--glow-color);
-            margin-bottom: 20px;
-            border-bottom: 1px dashed rgba(0, 255, 51, 0.4);
-            padding-bottom: 8px;
-            letter-spacing: 1px;
+            display: flex; justify-content: space-between; font-size: 11px;
+            color: var(--glow-color); margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(0, 255, 51, 0.4); padding-bottom: 8px;
         }
 
         h1 { 
-            font-size: 24px; 
-            margin-top: 0;
-            margin-bottom: 15px; 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
-            text-shadow: 0 0 15px var(--glow-color);
-            animation: glitchEffect 4s infinite;
+            font-size: 24px; margin-top: 0; margin-bottom: 15px; 
+            text-transform: uppercase; letter-spacing: 3px; 
+            text-shadow: 0 0 15px var(--glow-color); animation: glitchEffect 4s infinite;
         }
 
-        p.desc-text { 
-            font-size: 13px; 
-            line-height: 1.5; 
-            color: #d1d1d1; 
-            margin-bottom: 20px;
-        }
-        
-        .puzzle-image {
-            max-width: 180px;
-            width: 100%;
-            height: auto;
-            border: 1px solid var(--glow-color);
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 51, 0.25);
-        }
+        p.desc-text { font-size: 13px; line-height: 1.5; color: #d1d1d1; margin-bottom: 20px; }
+        .puzzle-image { max-width: 180px; width: 100%; height: auto; border: 1px solid var(--glow-color); margin-bottom: 20px; }
 
         input[type="text"] {
-            background-color: #000;
-            border: 1px solid rgba(0, 255, 51, 0.6);
-            color: var(--glow-color);
-            padding: 12px;
-            width: 85%;
-            text-align: center;
-            font-size: 15px;
-            outline: none;
-            box-sizing: border-box;
-            letter-spacing: 3px;
+            background-color: #000; border: 1px solid rgba(0, 255, 51, 0.6); color: var(--glow-color);
+            padding: 12px; width: 85%; text-align: center; font-size: 15px; outline: none; letter-spacing: 3px;
             font-family: 'Courier New', Courier, monospace;
         }
-        input[type="text"]:focus {
-            border-color: var(--glow-color);
-            box-shadow: 0 0 25px rgba(0, 255, 51, 0.4);
-        }
+        input[type="text"]:focus { border-color: var(--glow-color); box-shadow: 0 0 25px rgba(0, 255, 51, 0.4); }
 
         button, .download-btn {
-            background-color: transparent;
-            color: var(--glow-color);
-            border: 1px solid var(--glow-color);
-            padding: 12px 35px;
-            font-size: 13px;
-            font-weight: bold;
-            font-family: 'Courier New', Courier, monospace;
-            margin-top: 20px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s ease;
+            background-color: transparent; color: var(--glow-color); border: 1px solid var(--glow-color);
+            padding: 12px 35px; font-size: 13px; font-weight: bold; font-family: 'Courier New', Courier, monospace;
+            margin-top: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease;
         }
-        button:hover, .download-btn:hover { 
-            background-color: var(--glow-color);
-            color: #000;
-            box-shadow: 0 0 30px var(--glow-color);
-        }
-
-        #downloadSection { display: none; margin-top: 20px; border-top: 1px dashed rgba(0, 255, 51, 0.4); padding-top: 20px; }
+        button:hover, .download-btn:hover { background-color: var(--glow-color); color: #000; box-shadow: 0 0 30px var(--glow-color); }
         .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 51, 51, 0.5); }
 
-        /* ALL RIGHTS RESERVED - HIGH OPACITY */
-        .footer {
-            margin-top: 25px;
-            font-size: 12px;
-            color: rgba(0, 255, 51, 0.9);
-            font-weight: bold;
-            letter-spacing: 2px;
+        /* --- SUCCESS PANEL & CYBER EYE FILTERS --- */
+        #downloadSection { display: none; margin-top: 10px; animation: fadeInGlitch 0.6s ease-in-out; }
+        
+        .cyber-eye-container {
+            position: relative; margin: 15px auto 25px auto;
+            max-width: 400px; width: 100%; border: 1px solid var(--glow-color);
+            box-shadow: 0 0 30px rgba(0, 255, 51, 0.4); overflow: hidden; background: #000;
         }
+
+        .cyber-eye {
+            width: 100%; height: auto; display: block;
+            filter: grayscale(100%) brightness(1.2) contrast(1.8) sepia(100%) hue-rotate(85deg) saturate(500%);
+            mix-blend-mode: screen;
+        }
+
+        .congrats-text {
+            color: #ffffff; font-size: 20px; font-weight: bold; letter-spacing: 4px;
+            text-shadow: 0 0 15px #00ff33, 0 0 30px #00ff33; animation: pulseText 1.5s infinite alternate;
+            margin-bottom: 10px;
+        }
+
+        .footer { margin-top: 25px; font-size: 12px; color: rgba(0, 255, 51, 0.9); font-weight: bold; letter-spacing: 2px; }
 
         @keyframes glitchEffect {
             0%, 100% { transform: none; text-shadow: 0 0 15px var(--glow-color); }
@@ -189,22 +117,30 @@
             97% { transform: skewX(10deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
             98% { transform: none; }
         }
+        @keyframes fadeInGlitch {
+            0% { opacity: 0; transform: scale(0.95) skewX(-10deg); }
+            50% { opacity: 0.5; transform: skewX(10deg); }
+            100% { opacity: 1; transform: scale(1) skewX(0deg); }
+        }
+        @keyframes pulseText {
+            0% { opacity: 0.7; text-shadow: 0 0 10px #00ff33; }
+            100% { opacity: 1; text-shadow: 0 0 25px #00ff33, 0 0 40px #00ff33; }
+        }
 
-        /* පොඩි ෆෝන් වලට ලස්සනට හැඩගැසීමට */
         @media (max-width: 480px) {
             .container { padding: 20px; width: 90%; }
             h1 { font-size: 18px; }
-            p.desc-text { font-size: 11px; }
             .cyber-frame { top: 8px; left: 8px; right: 8px; bottom: 8px; }
+            .congrats-text { font-size: 16px; }
         }
     </style>
 </head>
 <body>
 
-<!-- BACKGROUND AUDIO ELEMENT -->
+<!-- TWO BACKGROUND MUSIC TRACKS -->
 <audio id="bgMusic" src="Audio.mp3" loop></audio>
+<audio id="successMusic" src="Success.mp3" loop></audio>
 
-<!-- OUTER SCI-FI FRAME -->
 <div class="cyber-frame">
     <div class="cyber-corner top-left"></div>
     <div class="cyber-corner top-right"></div>
@@ -217,16 +153,14 @@
 <div class="container">
     <div class="system-hud">
         <span>SYS_STATUS: ONLINE // BY_NIRA</span>
-        <span id="liveMetrics">CORE_LOAD: SYNCING...</span>
+        <span id="liveMetrics">CORE_LOAD: STABLE</span>
     </div>
 
-    <h1>[ Project: ECHO REVEAL ]</h1>
-    
-    <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
-
-    <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
-    
+    <!-- MAIN PUZZLE SCREEN -->
     <div id="puzzleSection">
+        <h1>[ Project: ECHO REVEAL ]</h1>
+        <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
+        <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
         <form onsubmit="event.preventDefault(); checkPuzzle();">
             <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off" onfocus="playBeep()">
             <br>
@@ -235,8 +169,15 @@
         <div id="errorMessage" class="error"></div>
     </div>
 
+    <!-- REVEAL PANEL WITH NEW AUDIO TRIGGER -->
     <div id="downloadSection">
-        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 20px #00ff33;">ACCESS GRANTED. THE VAULT IS OPENED.</p>
+        <div class="congrats-text">> CONGRATULATIONS &lt;</div>
+        
+        <div class="cyber-eye-container">
+            <img src="eye.png" alt="Cyber Target Eyes" class="cyber-eye">
+        </div>
+
+        <p style="color: #00ff33; font-weight: bold; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px;">ACCESS GRANTED. THE SECRET VAULT HAS BEEN REVEALED.</p>
         <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn" onmouseenter="playBeep()">Download Vault.7z (90MB)</a>
     </div>
 
@@ -246,17 +187,17 @@
 </div>
 
 <script>
-    // --- AUDIO CONTROL SYSTEM ---
     const myAudio = document.getElementById("bgMusic");
+    const successAudio = document.getElementById("successMusic");
     let hasInteracted = false;
+    let isDecrypted = false;
 
     function startMusic() {
-        if (!hasInteracted) {
-            myAudio.play().catch(e => console.log("Audio play delayed"));
+        if (!hasInteracted && !isDecrypted) {
+            myAudio.play().catch(e => console.log("Audio playing..."));
             hasInteracted = true;
         }
     }
-    // පරිශීලකයා සයිට් එකේ කොහේ ක්ලික් කලත් Audio.mp3 ප්ලේ වෙන්න පටන් ගන්නවා
     document.addEventListener('click', startMusic);
     document.addEventListener('keydown', startMusic);
 
@@ -278,18 +219,13 @@
         } catch(e){}
     }
 
-    // --- INTERACTIVE MATRIX CANVAS ---
+    // --- MATRIX CANVAS ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
-
     let mouseX = -1000, mouseY = -1000;
     window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
-    window.addEventListener('touchmove', (e) => { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; });
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
@@ -306,53 +242,44 @@
 
         for (let i = 0; i < drops.length; i++) {
             const text = charArr[Math.floor(Math.random() * charArr.length)];
-            const x = i * fontSize;
-            const y = drops[i] * fontSize;
-
+            const x = i * fontSize; const y = drops[i] * fontSize;
             const dist = Math.hypot(x - mouseX, y - mouseY);
             
-            // HIGH CONTRAST FLARE EFFECT ON MOUSE
             if (dist < 120) {
-                ctx.fillStyle = '#ffffff';
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = '#00ff33';
+                ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 25; ctx.shadowColor = '#00ff33';
             } else {
-                ctx.fillStyle = 'rgba(0, 255, 51, 0.6)';
-                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(0, 255, 51, 0.6)'; ctx.shadowBlur = 0;
             }
-
             ctx.fillText(text, x, y);
-            if (y > canvas.height && Math.random() * 0.975 > 0.95) {
-                drops[i] = 0;
-            }
+            if (y > canvas.height && Math.random() * 0.975 > 0.95) drops[i] = 0;
             drops[i]++;
         }
     }
     setInterval(drawMatrix, 33);
 
-    // --- REALTIME HUD DATA ---
-    setInterval(() => {
-        const load = Math.floor(Math.random() * (68 - 40 + 1)) + 40;
-        document.getElementById('liveMetrics').innerText = `CORE_LOAD: ${load}% // STABLE`;
-    }, 1500);
-
-    // --- PUZZLE CHECK LOGIC ---
+    // --- PUZZLE REVEAL LOGIC WITH MUSIC SWITCH ---
     function checkPuzzle() {
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
         var errorMessage = document.getElementById("errorMessage");
         var downloadSection = document.getElementById("downloadSection");
+        var puzzleSection = document.getElementById("puzzleSection");
         var secretToken = "ZGVkdW51"; 
 
         if (btoa(userInput) === secretToken) {
+            isDecrypted = true;
             errorMessage.innerHTML = "";
+            puzzleSection.style.display = "none";
             downloadSection.style.display = "block";
-            document.getElementById("puzzleSection").style.display = "none";
+
+            // AUDIO CROSSFADE SWITCH (පරණ සින්දුව නවතා අලුත් එක ප්ලේ කිරීම)
+            myAudio.pause();
+            successAudio.play().catch(e => console.log("Success audio play error"));
+
         } else {
             errorMessage.innerHTML = "ACCESS DENIED: INVALID DECRYPTION KEY.";
             downloadSection.style.display = "none";
         }
     }
 </script>
-
 </body>
 </html>
