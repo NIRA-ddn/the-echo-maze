@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Echo Vault</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #00ff33;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .container {
+            border: 1px solid #00ff33;
+            padding: 30px;
+            background-color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(0, 255, 51, 0.2);
+            max-width: 550px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 { font-size: 22px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        p { font-size: 13px; line-height: 1.6; color: #888; margin-bottom: 20px; }
+        .puzzle-image {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #00ff33;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 51, 0.1);
+        }
+        input[type="text"] {
+            background-color: #000;
+            border: 1px solid #00ff33;
+            color: #00ff33;
+            padding: 12px;
+            width: 80%;
+            text-align: center;
+            font-size: 16px;
+            margin-top: 10px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        button, .download-btn {
+            background-color: #00ff33;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            display: inline-block;
+            text-decoration: none;
+        }
+        button:hover, .download-btn:hover { background-color: #00cc22; }
+        #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed #00ff33; padding-top: 20px; }
+        .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>[ Project: ECHO REVEAL ]</h1>
+    
+    <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
+
+    <p>The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
+    
+    <div id="puzzleSection">
+        <form onsubmit="event.preventDefault(); checkPuzzle();">
+            <input type="text" id="puzzleInput" placeholder="ENTER THE SECRET WORD HERE...">
+            <br>
+            <button type="submit">Decrypt</button>
+        </form>
+        <div id="errorMessage" class="error"></div>
+    </div>
+
+    <div id="downloadSection">
+        <p style="color: #00ff33; font-weight: bold;">ACCESS GRANTED. THE VAULT IS OPENED.</p>
+        <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn">Download Vault.7z (90MB)</a>
+    </div>
+</div>
+
+<script>
+    function checkPuzzle() {
+        var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
+        var errorMessage = document.getElementById("errorMessage");
+        var downloadSection = document.getElementById("downloadSection");
+
+        var correctHash = "f192b67f18b5ea3f441589ff210ff447db480d195f2425a740751e1bb8cfbc6a"; // "dedunu"
+        var userHash = CryptoJS.SHA256(userInput).toString();
+
+        if (userHash === correctHash) {
+            errorMessage.innerHTML = "";
+            downloadSection.style.display = "block";
+            document.getElementById("puzzleSection").style.display = "none";
+        } else {
+            errorMessage.innerHTML = "ACCESS DENIED: INVALID DECRYPTION KEY.";
+            downloadSection.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
