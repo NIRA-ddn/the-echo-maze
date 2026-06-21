@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Echo Vault</title>
+    
+    <!-- බ්‍රවුසර් එකේ උඩ ටැබ් එකට (image_5e9697.png එකට) ECHO ඉමේජ් එක ලින්ක් කලා -->
+    <link rel="icon" type="image/png" href="ECHO.png">
+
     <style>
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
+            min-height: 100vh;
             background-color: #000;
             color: #00ff33;
             font-family: 'Courier New', Courier, monospace;
@@ -18,9 +21,12 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
+            /* Scroll වෙන්න ඉඩ හැදුවා */
+            overflow-y: auto; 
+            position: relative;
         }
 
-        /* මැට්‍රික්ස් රේන් කැන්වස් එක */
+        /* මැට්‍රික්ස් අකුරු වැස්සේ Opacity එක 0.35ක් දක්වා වැඩි කලා */
         #matrixCanvas {
             position: fixed;
             top: 0;
@@ -28,17 +34,18 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            opacity: 0.15; /* අකුරු වැස්ස පසුබිමට විතරක් පේන්න */
+            opacity: 0.35; 
+            pointer-events: none;
         }
 
-        /* ස්කෑන් වෙන ලයින් ඉෆෙක්ට් එක */
+        /* ස්කෑන් ලයින්ස් */
         .scanlines {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
             background-size: 100% 4px, 6px 100%;
             z-index: 2;
             pointer-events: none;
@@ -48,15 +55,16 @@
         .container {
             border: 1px solid #00ff33;
             padding: 40px 30px;
-            background-color: rgba(5, 5, 5, 0.93);
-            box-shadow: 0 0 40px rgba(0, 255, 51, 0.2), inset 0 0 20px rgba(0, 255, 51, 0.1);
+            background-color: rgba(5, 5, 5, 0.95);
+            box-shadow: 0 0 40px rgba(0, 255, 51, 0.3), inset 0 0 20px rgba(0, 255, 51, 0.15);
             max-width: 550px;
             width: 90%;
             box-sizing: border-box;
             border-radius: 4px;
             position: relative;
             z-index: 3;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(5px);
+            margin: 40px 0; /* උඩ සහ යට Scroll වෙද්දී ඉඩ තියාගන්න */
         }
 
         /* ටෙක් බෝඩර් කොන් 4 */
@@ -75,10 +83,10 @@
             display: flex;
             justify-content: space-between;
             font-size: 10px;
-            color: rgba(0, 255, 51, 0.7);
+            color: rgba(0, 255, 51, 0.8);
             margin-top: -25px;
             margin-bottom: 25px;
-            border-bottom: 1px solid rgba(0, 255, 51, 0.2);
+            border-bottom: 1px solid rgba(0, 255, 51, 0.3);
             padding-bottom: 5px;
             letter-spacing: 1px;
         }
@@ -89,7 +97,7 @@
             margin-bottom: 20px; 
             text-transform: uppercase; 
             letter-spacing: 3px; 
-            text-shadow: 0 0 10px rgba(0, 255, 51, 0.6);
+            text-shadow: 0 0 12px #00ff33;
             animation: textFlicker 4s infinite;
         }
 
@@ -98,15 +106,15 @@
         .puzzle-image {
             max-width: 100%;
             height: auto;
-            border: 1px solid rgba(0, 255, 51, 0.4);
+            border: 1px solid #00ff33;
             margin-bottom: 25px;
-            box-shadow: 0 0 20px rgba(0, 255, 51, 0.15);
+            box-shadow: 0 0 25px rgba(0, 255, 51, 0.25);
         }
 
         /* දිලිසෙන ඉන්පුට් බොක්ස් එක */
         input[type="text"] {
             background-color: #000;
-            border: 1px solid rgba(0, 255, 51, 0.5);
+            border: 1px solid #00ff33;
             color: #00ff33;
             padding: 14px;
             width: 85%;
@@ -117,12 +125,10 @@
             box-sizing: border-box;
             letter-spacing: 3px;
             transition: all 0.3s ease;
-            animation: pulseGlow 2s infinite alternate;
+            box-shadow: 0 0 10px rgba(0, 255, 51, 0.2);
         }
         input[type="text"]:focus {
-            border-color: #00ff33;
-            box-shadow: 0 0 20px rgba(0, 255, 51, 0.4), inset 0 0 5px rgba(0, 255, 51, 0.2);
-            animation: none;
+            box-shadow: 0 0 25px rgba(0, 255, 51, 0.5), inset 0 0 5px rgba(0, 255, 51, 0.3);
         }
 
         /* හැකර් බටන් */
@@ -139,28 +145,24 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 51, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 51, 0.2);
         }
         button:hover, .download-btn:hover { 
             background-color: #00ff33;
             color: #000;
-            box-shadow: 0 0 25px rgba(0, 255, 51, 0.5);
+            box-shadow: 0 0 30px rgba(0, 255, 51, 0.6);
         }
 
-        #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed rgba(0, 255, 51, 0.3); padding-top: 25px; }
-        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255, 51, 51, 0.4); }
+        #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed rgba(0, 255, 51, 0.4); padding-top: 25px; }
+        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255, 51, 51, 0.5); }
 
         .footer {
-            position: absolute;
-            bottom: -35px;
-            left: 0;
-            right: 0;
+            margin-top: 25px;
             font-size: 11px;
-            color: rgba(0, 255, 51, 0.4);
+            color: rgba(0, 255, 51, 0.5);
             letter-spacing: 1px;
         }
 
-        /* ඇනිමේෂන්ස් */
         @keyframes textFlicker {
             0%, 100% { opacity: 1; }
             32% { opacity: 1; }
@@ -170,20 +172,14 @@
             66% { opacity: 0.7; }
             67% { opacity: 1; }
         }
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(0, 255, 51, 0.2); border-color: rgba(0, 255, 51, 0.4); }
-            100% { box-shadow: 0 0 15px rgba(0, 255, 51, 0.4); border-color: rgba(0, 255, 51, 0.8); }
-        }
     </style>
 </head>
 <body>
 
-<!-- මැට්‍රික්ස් අකුරු වැස්ස පසුබිම -->
 <canvas id="matrixCanvas"></canvas>
 <div class="scanlines"></div>
 
 <div class="container">
-    <!-- ලයිව් අප්ඩේට් වෙන ටෙක් හඩ් එක -->
     <div class="system-hud">
         <span>SYS_STATUS: ACTIVE // BY_NIRA</span>
         <span id="liveMetrics">CORE_LOAD: 42% // RATE: 98.4bps</span>
@@ -205,7 +201,7 @@
     </div>
 
     <div id="downloadSection">
-        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 15px rgba(0,255,51,0.5);">ACCESS GRANTED. THE VAULT IS OPENED.</p>
+        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 15px rgba(0,255,51,0.6);">ACCESS GRANTED. THE VAULT IS OPENED.</p>
         <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn">Download Vault.7z (90MB)</a>
     </div>
 
@@ -226,7 +222,7 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZコンニチハアカサタナ";
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZコンニチハアカサタනා";
     const charArr = chars.split("");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
@@ -249,14 +245,14 @@
     }
     setInterval(drawMatrix, 35);
 
-    // --- LIVE HUD METRICS SIMULATION ---
+    // --- LIVE HUD METRICS ---
     setInterval(() => {
         const load = Math.floor(Math.random() * (68 - 35 + 1)) + 35;
         const rate = (Math.random() * (99.9 - 95.2) + 95.2).toFixed(1);
         document.getElementById('liveMetrics').innerText = `CORE_LOAD: ${load}% // RATE: ${rate}bps`;
     }, 1500);
 
-    // --- PUZZLE DECRYPTION LOGIC ---
+    // --- PUZZLE LOGIC ---
     function checkPuzzle() {
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
         var errorMessage = document.getElementById("errorMessage");
