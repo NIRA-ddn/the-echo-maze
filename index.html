@@ -87,7 +87,7 @@
         button:hover, .download-btn:hover { background-color: var(--glow-color); color: #000; box-shadow: 0 0 30px var(--glow-color); }
         .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 51, 51, 0.5); }
 
-        /* --- SUCCESS PANEL & CYBER EYE FILTERS --- */
+        /* --- SUCCESS PANEL & CYBER EYE ANIMATION (කොටු/ඉරි ස්කෑන්) --- */
         #downloadSection { display: none; margin-top: 10px; animation: fadeInGlitch 0.6s ease-in-out; }
         
         .cyber-eye-container {
@@ -100,6 +100,27 @@
             width: 100%; height: auto; display: block;
             filter: grayscale(100%) brightness(1.2) contrast(1.8) sepia(100%) hue-rotate(85deg) saturate(500%);
             mix-blend-mode: screen;
+        }
+
+        /* ඇස උඩින් දුවන DIGITAL SCANLINE LAYER */
+        .cyber-eye-container::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 6px;
+            background: rgba(0, 255, 51, 0.8);
+            box-shadow: 0 0 15px var(--glow-color), 0 0 30px var(--glow-color);
+            animation: cyberScan 2.5s linear infinite;
+        }
+
+        /* ඩිජිටල් කොටු කොටු පෙනෙන GRID LAYER */
+        .grid-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 255, 51, 0.15) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 51, 0.15) 1px, transparent 1px);
+            background-size: 15px 15px; /* කොටු වල ප්‍රමාණය */
+            pointer-events: none;
+            z-index: 2;
         }
 
         .congrats-text {
@@ -126,6 +147,12 @@
             0% { opacity: 0.7; text-shadow: 0 0 10px #00ff33; }
             100% { opacity: 1; text-shadow: 0 0 25px #00ff33, 0 0 40px #00ff33; }
         }
+        /* ඉරි උඩ පල්ලෙහා යන ඇනිමේෂන් එක */
+        @keyframes cyberScan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
 
         @media (max-width: 480px) {
             .container { padding: 20px; width: 90%; }
@@ -137,9 +164,10 @@
 </head>
 <body>
 
-<!-- TWO BACKGROUND MUSIC TRACKS -->
+<!-- BACKGROUND AUDIO ELEMENTS -->
 <audio id="bgMusic" src="Audio.mp3" loop></audio>
-<audio id="successMusic" src="Success.mp3" loop></audio>
+<!-- Success.mp3 එක loop වෙන්නේ නැති වෙන්න හැදුවා -->
+<audio id="successMusic" src="Success.mp3"></audio>
 
 <div class="cyber-frame">
     <div class="cyber-corner top-left"></div>
@@ -169,11 +197,12 @@
         <div id="errorMessage" class="error"></div>
     </div>
 
-    <!-- REVEAL PANEL WITH NEW AUDIO TRIGGER -->
+    <!-- REVEAL PANEL WITH GRID OVERLAY -->
     <div id="downloadSection">
         <div class="congrats-text">> CONGRATULATIONS &lt;</div>
         
         <div class="cyber-eye-container">
+            <div class="grid-overlay"></div> <!-- කොටු කොටු පෙනෙන ලේයර් එක -->
             <img src="eye.png" alt="Cyber Target Eyes" class="cyber-eye">
         </div>
 
@@ -257,7 +286,7 @@
     }
     setInterval(drawMatrix, 33);
 
-    // --- PUZZLE REVEAL LOGIC WITH MUSIC SWITCH ---
+    // --- PUZZLE REVEAL LOGIC ---
     function checkPuzzle() {
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
         var errorMessage = document.getElementById("errorMessage");
@@ -271,7 +300,7 @@
             puzzleSection.style.display = "none";
             downloadSection.style.display = "block";
 
-            // AUDIO CROSSFADE SWITCH (පරණ සින්දුව නවතා අලුත් එක ප්ලේ කිරීම)
+            // AUDIO SWITCH (පරණ එක නවත්වා, නව සිංගල් ට්‍රැක් එක ප්ලේ කිරීම)
             myAudio.pause();
             successAudio.play().catch(e => console.log("Success audio play error"));
 
