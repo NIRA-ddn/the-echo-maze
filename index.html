@@ -28,7 +28,7 @@
             z-index: 99; background-size: 100% 4px, 4px 100%; pointer-events: none;
         }
 
-        /* MATRIX & CLOUD CANVAS */
+        /* MATRIX, CLOUDS & SIMBLES CANVAS */
         #matrixCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1; opacity: 0.4; pointer-events: none;
@@ -100,8 +100,7 @@
 
         .cyber-eye {
             width: 100%; height: auto; display: block;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            image-rendering: pixelated; image-rendering: crisp-edges;
             filter: grayscale(100%) brightness(1.3) contrast(2.5) sepia(100%) hue-rotate(90deg) saturate(600%);
             mix-blend-mode: screen; opacity: 0.9;
         }
@@ -240,7 +239,7 @@
         } catch(e){}
     }
 
-    // --- MATRIX CANVAS & FLOATING CYBER CLOUDS SYSTEM ---
+    // --- MATRIX CANVAS & MULTI CYBER PARTICLE SYSTEM ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
     let mouseX = -1000, mouseY = -1000;
@@ -257,19 +256,27 @@
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
-    // Cyber Clouds Particles Setup
-    const cloudSymbols = ["☁", "☁•", "[☁]", "•☁•", "☁_01"];
-    const cloudsList = [];
-    const maxClouds = 12; // ස්ක්‍රීන් එකේ එකපාර පාවෙන උපරිම වලාකුළු ගණන
+    // --- CYBER ELEMENTS PARTICLE LIST ---
+    // වලාකුළු, 7 සහ ඔරලෝසු සංකේත වෙන වෙනම ස්ටයිල් වලින්
+    const cyberPool = [
+        { text: "☁", type: "cloud" }, { text: "[☁]", type: "cloud" }, { text: "☁•", type: "cloud" },
+        { text: "7", type: "seven" }, { text: "[7]", type: "seven" }, { text: "•7•", type: "seven" },
+        { text: "🕒", type: "clock" }, { text: "⏱", type: "clock" }, { text: "[CLK]", type: "clock" }
+    ];
+    
+    const particleList = [];
+    const maxParticles = 18; // ස්ක්‍රීන් එකේ පාවෙන මුළු සංකේත ගණන
 
-    for (let i = 0; i < maxClouds; i++) {
-        cloudsList.push({
+    for (let i = 0; i < maxParticles; i++) {
+        let source = cyberPool[Math.floor(Math.random() * cyberPool.length)];
+        particleList.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            speed: 0.3 + Math.random() * 0.6,
-            text: cloudSymbols[Math.floor(Math.random() * cloudSymbols.length)],
-            size: 16 + Math.floor(Math.random() * 20),
-            opacity: 0.12 + Math.random() * 0.15
+            speed: 0.2 + Math.random() * 0.7, // වෙන වෙනම වේගයන්
+            text: source.text,
+            type: source.type,
+            size: 15 + Math.floor(Math.random() * 18), // වෙන වෙනම ප්‍රමාණයන්
+            opacity: 0.10 + Math.random() * 0.14 // මෘදුව පෙනෙන ඔපෑසිටිය
         });
     }
 
@@ -278,26 +285,29 @@
         ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 1. DRAW FLOATING CYBER CLOUDS (පළමුව වලාකුළු පසුබිමෙන් ඇඳීම)
-        for (let i = 0; i < cloudsList.length; i++) {
-            let cloud = cloudsList[i];
-            ctx.font = cloud.size + 'px monospace';
-            ctx.fillStyle = `rgba(0, 255, 51, ${cloud.opacity})`;
-            ctx.shadowBlur = 10;
+        // 1. DRAW FLOATING CYBER PARTICLES (BACKGROUND LAYER)
+        for (let i = 0; i < particleList.length; i++) {
+            let p = particleList[i];
+            ctx.font = p.size + 'px monospace';
+            ctx.fillStyle = `rgba(0, 255, 51, ${p.opacity})`;
+            
+            // Neon Glow Effect
+            ctx.shadowBlur = 8;
             ctx.shadowColor = '#00ff33';
-            ctx.fillText(cloud.text, cloud.x, cloud.y);
-            ctx.shadowBlur = 0; // reset
+            ctx.fillText(p.text, p.x, p.y);
+            ctx.shadowBlur = 0; // reset blur
 
-            // වමට හෝ දකුණට මෘදුව පාවීම
-            cloud.x += cloud.speed;
-            // ස්ක්‍රීන් එකෙන් පිට වුනොත් වමේ සිට නැවත පැමිණීම
-            if (cloud.x > canvas.width + 100) {
-                cloud.x = -100;
-                cloud.y = Math.random() * canvas.height;
+            // මෘදුව දකුණට පාවීම
+            p.x += p.speed;
+            
+            // ස්ක්‍රීන් එකෙන් පිට වුනොත් වමෙන් නැවත මතුවීම
+            if (p.x > canvas.width + 80) {
+                p.x = -80;
+                p.y = Math.random() * canvas.height;
             }
         }
 
-        // 2. DRAW MATRIX FALLING CODE (ඉන්පසු මැට්‍රික්ස් කෝඩ් ඇඳීම)
+        // 2. DRAW MATRIX FALLING CODE (FOREGROUND LAYER)
         ctx.font = fontSize + 'px monospace';
         for (let i = 0; i < drops.length; i++) {
             const text = charArr[Math.floor(Math.random() * charArr.length)];
