@@ -8,7 +8,7 @@
         :root { --glow-color: #00ff33; --bg-color: #050505; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100vh; background-color: var(--bg-color); color: var(--glow-color); font-family: 'Courier New', Courier, monospace; overflow: hidden; }
 
-        /* RADAR & DATA STREAM */
+        /* GRAPHICAL ELEMENTS */
         .radar-box { position: fixed; top: 20px; left: 20px; width: 80px; height: 80px; border: 1px solid var(--glow-color); border-radius: 50%; opacity: 0.6; z-index: 2; pointer-events: none; }
         .radar-line { position: absolute; top: 40px; left: 40px; width: 40px; height: 2px; background: var(--glow-color); transform-origin: left; animation: rotate 3s linear infinite; }
         @keyframes rotate { 100% { transform: rotate(360deg); } }
@@ -19,10 +19,13 @@
         /* MATRIX CANVAS */
         #matrixCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.45; pointer-events: none; }
 
-        /* EXISTING STYLES (Keep your original CSS here) */
+        /* BOOT TERMINAL */
         #bootTerminal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; padding: 45px; display: flex; flex-direction: column; }
         .boot-line { margin-bottom: 12px; min-height: 22px; font-weight: bold; color: var(--glow-color); }
+
+        /* MAIN CONTAINER */
         .container { position: relative; z-index: 5; max-width: 600px; margin: auto; border: 1px solid rgba(0, 255, 51, 0.3); padding: 30px; background: rgba(2, 2, 2, 0.94); display: none; text-align: center; }
+        h1 { color: var(--glow-color); }
     </style>
 </head>
 <body>
@@ -42,12 +45,13 @@
 
 <div class="container" id="mainContainer">
     <h1>[ Project: ECHO REVEAL ]</h1>
-    </div>
+    <p>System Online. Access Authorized.</p>
+</div>
 
 <script>
-    // 1. Data Stream
+    // 1. Data Stream Logic
     const stream = document.getElementById("stream");
-    const files = ["/root/data/access...", "/user/sync/files...", "/sys/core/clock...", "/cloud/storage/7..."];
+    const files = ["/root/access...", "/user/sync/data...", "/sys/clock/core...", "/cloud/storage/7..."];
     function addStream() {
         const p = document.createElement("div");
         p.className = "stream-line";
@@ -62,8 +66,7 @@
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     
-    // මෙතනට ඔයාගේ Clouds, Clocks සහ 7 දාලා තියෙන්නේ
-    const symbols = ["0", "1", "☁", "[☁]", "🕒", "⏱", "7", "[7]", "•7•"];
+    const symbols = ["0", "1", "☁", "[☁]", "🕒", "⏱", "7", "[7]"];
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
@@ -83,8 +86,36 @@
     }
     setInterval(draw, 50);
 
-    // 3. Keep your existing Boot/Logic scripts below this line...
-    // (ඔයාගේ කලින් තිබ්බ typeWriter සහ checkPuzzle වගේ functions ටික මේ ටිකට පහලින් දාගන්න)
+    // 3. Boot Sequence
+    function typeWriter(text, elementId, speed, callback) {
+        let i = 0;
+        let elem = document.getElementById(elementId);
+        if(!elem) return;
+        elem.innerHTML = "";
+        function type() {
+            if (i < text.length) {
+                elem.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            } else if (callback) callback();
+        }
+        type();
+    }
+
+    setTimeout(() => {
+        typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 30, () => {
+            typeWriter(">> TRACING INCOMING CONNECTION...", "line3", 30, () => {
+                typeWriter(">> IDENTIFIED: 192.168.1.1 | LOC: COLOMBO, LK", "line4", 30, () => {
+                    typeWriter(">> STATUS: TRACKING ACTIVE. SYSTEM READY.", "line5", 30, () => {
+                        setTimeout(() => {
+                            document.getElementById("bootTerminal").style.display = "none";
+                            document.getElementById("mainContainer").style.display = "block";
+                        }, 1000);
+                    });
+                });
+            });
+        });
+    }, 400);
 </script>
 </body>
 </html>
