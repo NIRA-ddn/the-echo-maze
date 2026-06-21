@@ -9,24 +9,23 @@
     <style>
         :root {
             --glow-color: #00ff33;
-            --bright-glow: #ffffff;
-            --bg-color: #010101;
+            --bg-color: #050505;
         }
 
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
-            min-height: 100vh;
+            height: 100vh;
             background-color: var(--bg-color);
             color: var(--glow-color);
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-sizing: border-box;
-            overflow-y: auto; 
+            overflow: hidden; /* මුළු ස්ක්‍රීන් එකම එකම මට්ටමක තබා ගැනීමට */
             position: relative;
+            box-sizing: border-box;
         }
 
         /* CRT MONITOR GRID OVERLAY */
@@ -35,7 +34,7 @@
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 99;
             background-size: 100% 4px, 4px 100%;
             pointer-events: none;
@@ -48,186 +47,178 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            opacity: 0.45; 
+            opacity: 0.35; 
             pointer-events: none;
         }
 
-        .scanline-bar {
+        /* FULL SCREEN CYBER HUD FRAME (image_5e2923.jpg එකේ වගේමයි) */
+        .cyber-frame {
             position: fixed;
-            top: -100px;
-            left: 0;
-            width: 100%;
-            height: 15px;
-            background: rgba(0, 255, 51, 0.15);
-            box-shadow: 0 0 30px var(--glow-color);
-            z-index: 2;
-            animation: radarScan 5s linear infinite;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px solid rgba(0, 255, 51, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 51, 0.15), inset 0 0 20px rgba(0, 255, 51, 0.15);
             pointer-events: none;
+            z-index: 10;
+            border-radius: 12px;
         }
-
-        /* CONTAINER WITH ADVANCED SHADOWS */
-        .container {
-            border: 1px solid var(--glow-color);
-            padding: 45px 30px;
-            background-color: rgba(2, 2, 2, 0.97);
-            border-radius: 4px;
-            position: relative;
-            z-index: 3;
-            backdrop-filter: blur(10px);
-            margin: 40px 0;
-            max-width: 550px;
-            width: 90%;
-            box-sizing: border-box;
-            animation: containerPulse 3s infinite alternate;
-        }
-
-        .container::before, .container::after {
-            content: '';
+        
+        /* FRAME CORNER CUTS */
+        .cyber-corner {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            border: 3px solid var(--glow-color);
+            width: 30px;
+            height: 30px;
+            border: 4px solid var(--glow-color);
         }
-        .container::before { top: -4px; left: -4px; border-right: none; border-bottom: none; }
-        .container::after { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+        .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+        .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
+        .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
+        .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+
+        /* MAIN STATION CONTAINER */
+        .container {
+            border: 1px solid rgba(0, 255, 51, 0.3);
+            padding: 30px;
+            background-color: rgba(2, 2, 2, 0.93);
+            border-radius: 6px;
+            position: relative;
+            z-index: 5;
+            backdrop-filter: blur(8px);
+            max-width: 600px;
+            width: 85%;
+            max-height: 85vh; /* හැම ඩිවයිස් එකකම Screen එක ඇතුලට Fit වීම සඳහා */
+            overflow-y: auto;
+            text-align: center;
+            box-sizing: border-box;
+            box-shadow: 0 0 40px rgba(0, 255, 51, 0.2);
+        }
 
         .system-hud {
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
-            color: rgba(0, 255, 51, 0.9);
-            margin-top: -30px;
-            margin-bottom: 25px;
-            border-bottom: 1px dashed rgba(0, 255, 51, 0.5);
-            padding-bottom: 6px;
-            letter-spacing: 1.5px;
-        }
-
-        /* HYPER-GRAPHIC SUB TERMINAL */
-        .sub-terminal {
-            background: rgba(0,0,0,0.8);
-            border: 1px solid rgba(0, 255, 51, 0.2);
-            font-size: 9px;
-            padding: 8px;
-            text-align: left;
-            margin-bottom: 15px;
-            height: 35px;
-            overflow: hidden;
-            color: rgba(0, 255, 51, 0.6);
+            font-size: 11px;
+            color: var(--glow-color);
+            margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(0, 255, 51, 0.4);
+            padding-bottom: 8px;
+            letter-spacing: 1px;
         }
 
         h1 { 
-            font-size: 26px; 
+            font-size: 24px; 
             margin-top: 0;
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             text-transform: uppercase; 
-            letter-spacing: 4px; 
+            letter-spacing: 3px; 
             text-shadow: 0 0 15px var(--glow-color);
-            animation: glitchEffect 3s infinite;
+            animation: glitchEffect 4s infinite;
         }
 
         p.desc-text { 
             font-size: 13px; 
-            line-height: 1.6; 
+            line-height: 1.5; 
             color: #d1d1d1; 
-            margin-bottom: 25px; 
-            letter-spacing: 0.8px;
+            margin-bottom: 20px;
         }
         
         .puzzle-image {
-            max-width: 100%;
+            max-width: 180px;
+            width: 100%;
             height: auto;
             border: 1px solid var(--glow-color);
-            margin-bottom: 25px;
-            box-shadow: 0 0 30px rgba(0, 255, 51, 0.3);
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 51, 0.25);
         }
 
         input[type="text"] {
             background-color: #000;
             border: 1px solid rgba(0, 255, 51, 0.6);
             color: var(--glow-color);
-            padding: 15px;
+            padding: 12px;
             width: 85%;
             text-align: center;
-            font-size: 16px;
-            margin-top: 10px;
+            font-size: 15px;
             outline: none;
             box-sizing: border-box;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             font-family: 'Courier New', Courier, monospace;
-            transition: all 0.4s ease;
-            box-shadow: inset 0 0 10px rgba(0, 255, 51, 0.1);
         }
         input[type="text"]:focus {
             border-color: var(--glow-color);
-            box-shadow: 0 0 35px rgba(0, 255, 51, 0.5), inset 0 0 10px rgba(0, 255, 51, 0.3);
+            box-shadow: 0 0 25px rgba(0, 255, 51, 0.4);
         }
 
         button, .download-btn {
             background-color: transparent;
             color: var(--glow-color);
             border: 1px solid var(--glow-color);
-            padding: 14px 40px;
-            font-size: 14px;
+            padding: 12px 35px;
+            font-size: 13px;
             font-weight: bold;
             font-family: 'Courier New', Courier, monospace;
-            margin-top: 25px;
+            margin-top: 20px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            transition: all 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
         }
         button:hover, .download-btn:hover { 
             background-color: var(--glow-color);
             color: #000;
-            box-shadow: 0 0 40px var(--glow-color);
-            transform: scale(1.02);
+            box-shadow: 0 0 30px var(--glow-color);
         }
 
-        #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed rgba(0, 255, 51, 0.4); padding-top: 25px; }
-        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 51, 51, 0.7); }
+        #downloadSection { display: none; margin-top: 20px; border-top: 1px dashed rgba(0, 255, 51, 0.4); padding-top: 20px; }
+        .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 51, 51, 0.5); }
 
-        /* ALL RIGHTS RESERVED - OPACITY වැඩි කලා */
+        /* ALL RIGHTS RESERVED - HIGH OPACITY */
         .footer {
-            margin-top: 30px;
+            margin-top: 25px;
             font-size: 12px;
-            color: rgba(0, 255, 51, 0.85); 
+            color: rgba(0, 255, 51, 0.9);
             font-weight: bold;
             letter-spacing: 2px;
-            text-shadow: 0 0 5px rgba(0, 255, 51, 0.3);
         }
 
-        @keyframes containerPulse {
-            0% { box-shadow: 0 0 30px rgba(0, 255, 51, 0.2), inset 0 0 15px rgba(0, 255, 51, 0.05); }
-            100% { box-shadow: 0 0 60px rgba(0, 255, 51, 0.45), inset 0 0 25px rgba(0, 255, 51, 0.2); }
-        }
-        @keyframes radarScan {
-            0% { top: -10px; opacity: 0; }
-            5% { opacity: 1; }
-            95% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
         @keyframes glitchEffect {
             0%, 100% { transform: none; text-shadow: 0 0 15px var(--glow-color); }
-            94% { transform: none; }
-            95% { transform: skewX(-20deg); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
-            96% { transform: skewX(15deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
-            97% { transform: none; }
+            95% { transform: none; }
+            96% { transform: skewX(-15deg); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
+            97% { transform: skewX(10deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
+            98% { transform: none; }
+        }
+
+        /* පොඩි ෆෝන් වලට ලස්සනට හැඩගැසීමට */
+        @media (max-width: 480px) {
+            .container { padding: 20px; width: 90%; }
+            h1 { font-size: 18px; }
+            p.desc-text { font-size: 11px; }
+            .cyber-frame { top: 8px; left: 8px; right: 8px; bottom: 8px; }
         }
     </style>
 </head>
 <body>
 
+<!-- BACKGROUND AUDIO ELEMENT -->
+<audio id="bgMusic" src="Audio.mp3" loop></audio>
+
+<!-- OUTER SCI-FI FRAME -->
+<div class="cyber-frame">
+    <div class="cyber-corner top-left"></div>
+    <div class="cyber-corner top-right"></div>
+    <div class="cyber-corner bottom-left"></div>
+    <div class="cyber-corner bottom-right"></div>
+</div>
+
 <canvas id="matrixCanvas"></canvas>
-<div class="scanline-bar"></div>
 
-<div class="container" onclick="startCyberMusic()">
+<div class="container">
     <div class="system-hud">
-        <span>SYS_STATUS: ACTIVE // BY_NIRA</span>
-        <span id="liveMetrics">CORE_LOAD: FETCHING...</span>
+        <span>SYS_STATUS: ONLINE // BY_NIRA</span>
+        <span id="liveMetrics">CORE_LOAD: SYNCING...</span>
     </div>
-
-    <div class="sub-terminal" id="subTerminal">INITIALIZING MODULES...</div>
 
     <h1>[ Project: ECHO REVEAL ]</h1>
     
@@ -255,85 +246,39 @@
 </div>
 
 <script>
-    // --- ADVANCED AUDIO GENERATOR (AMBIENT MUSIC + FX) ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let musicStarted = false;
+    // --- AUDIO CONTROL SYSTEM ---
+    const myAudio = document.getElementById("bgMusic");
+    let hasInteracted = false;
 
-    // සයිබර්පන්ක් සංගීතය උත්පාදනය කිරීමේ කේතය
-    function startCyberMusic() {
-        if (musicStarted) return;
-        musicStarted = true;
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-
-        // Ambient Pad Synthesizer
-        function playChordNode(freq, startTime, duration) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, startTime);
-            
-            // ලස්සනට සවුන්ඩ් එක ඇවිත් යන Attack / Release එකක්
-            gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.02, startTime + 1.5);
-            gain.gain.setValueAtTime(0.02, startTime + duration - 1.5);
-            gain.gain.linearRampToValueAtTime(0, startTime + duration);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(startTime);
-            osc.stop(startTime + duration);
+    function startMusic() {
+        if (!hasInteracted) {
+            myAudio.play().catch(e => console.log("Audio play delayed"));
+            hasInteracted = true;
         }
-
-        function playMusicLoop() {
-            const now = audioCtx.currentTime;
-            // Space Synth Chords (Am -> F -> C -> G)
-            const chords = [
-                [220, 261, 329], // Am
-                [174, 220, 261], // F
-                [261, 329, 392], // C
-                [196, 246, 293]  // G
-            ];
-            let timeOffset = 0;
-            chords.forEach((chord) => {
-                chord.forEach((note) => {
-                    playChordNode(note, now + timeOffset, 4);
-                });
-                timeOffset += 4;
-            });
-            setTimeout(playMusicLoop, 16000); // දිගටම ලූප් වෙනවා
-        }
-        playMusicLoop();
     }
+    // පරිශීලකයා සයිට් එකේ කොහේ ක්ලික් කලත් Audio.mp3 ප්ලේ වෙන්න පටන් ගන්නවා
+    document.addEventListener('click', startMusic);
+    document.addEventListener('keydown', startMusic);
 
-    function playSound(freq, type, duration, endFreq = freq) {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep() {
+        startMusic();
         try {
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(850, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-        } catch(e) {}
+            osc.stop(audioCtx.currentTime + 0.1);
+        } catch(e){}
     }
 
-    function playBeep() { 
-        startCyberMusic();
-        playSound(900, 'sine', 0.12, 1100); // Soft Tech Fluid Beep
-    }
-    function playSuccess() { 
-        playSound(523.25, 'sine', 0.15); 
-        setTimeout(() => playSound(659.25, 'sine', 0.15), 100);
-        setTimeout(() => playSound(783.99, 'sine', 0.3), 200);
-    }
-    document.addEventListener('click', startCyberMusic);
-
-    // --- INTERACTIVE FLARE CANVAS ANIMATION ---
+    // --- INTERACTIVE MATRIX CANVAS ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -348,14 +293,14 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZコンニチハ";
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const charArr = chars.split("");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
     function drawMatrix() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = fontSize + 'px monospace';
 
@@ -366,13 +311,13 @@
 
             const dist = Math.hypot(x - mouseX, y - mouseY);
             
-            // මවුස් එක ගාවදී අතිශය දීප්තිමත් වන HIGH GLOW EFFECT
-            if (dist < 100) {
+            // HIGH CONTRAST FLARE EFFECT ON MOUSE
+            if (dist < 120) {
                 ctx.fillStyle = '#ffffff';
-                ctx.shadowBlur = 20;
+                ctx.shadowBlur = 25;
                 ctx.shadowColor = '#00ff33';
             } else {
-                ctx.fillStyle = 'rgba(0, 255, 51, 0.7)';
+                ctx.fillStyle = 'rgba(0, 255, 51, 0.6)';
                 ctx.shadowBlur = 0;
             }
 
@@ -385,25 +330,13 @@
     }
     setInterval(drawMatrix, 33);
 
-    // --- SUB-TERMINAL LOG STREAMER ---
-    const logs = [
-        "SYS: EXECUTING INTRUSION DETECTION...", "NET: SYN_FLOOD PACKETS DETECTED", 
-        "MEM: ALLOCATING VAULT MEMORY BUFFER", "CORE: QUANTUM DECRYPTION LAYER ACTIVE",
-        "ECHO: LISTENING ON PORT 443...", "NIRA_OS: BYPASSING FIREWALL INTEGRITY"
-    ];
-    setInterval(() => {
-        const randomLog = logs[Math.floor(Math.random() * logs.length)];
-        document.getElementById('subTerminal').innerText = `> ${randomLog} [OK]`;
-    }, 2000);
-
     // --- REALTIME HUD DATA ---
     setInterval(() => {
-        const load = Math.floor(Math.random() * (74 - 40 + 1)) + 40;
-        const rate = (Math.random() * (99.9 - 96.1) + 96.1).toFixed(1);
-        document.getElementById('liveMetrics').innerText = `CORE_LOAD: ${load}% // RATE: ${rate}bps`;
-    }, 1200);
+        const load = Math.floor(Math.random() * (68 - 40 + 1)) + 40;
+        document.getElementById('liveMetrics').innerText = `CORE_LOAD: ${load}% // STABLE`;
+    }, 1500);
 
-    // --- PUZZLE LOGIC ---
+    // --- PUZZLE CHECK LOGIC ---
     function checkPuzzle() {
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
         var errorMessage = document.getElementById("errorMessage");
@@ -411,12 +344,10 @@
         var secretToken = "ZGVkdW51"; 
 
         if (btoa(userInput) === secretToken) {
-            playSuccess();
             errorMessage.innerHTML = "";
             downloadSection.style.display = "block";
             document.getElementById("puzzleSection").style.display = "none";
         } else {
-            playSound(180, 'sawtooth', 0.6, 90); // ACCESS DENIED DEEP SYNTH
             errorMessage.innerHTML = "ACCESS DENIED: INVALID DECRYPTION KEY.";
             downloadSection.style.display = "none";
         }
