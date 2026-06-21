@@ -4,34 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Echo Vault</title>
+    <link rel="icon" type="image/png" href="ECHO.png">
+
     <style>
-        :root { --glow-color: #00ff33; --bg-color: #050505; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100vh; background-color: var(--bg-color); color: var(--glow-color); font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        :root {
+            --glow-color: #00ff33;
+            --bg-color: #050505;
+        }
 
-        /* GRAPHICAL ELEMENTS */
-        .radar-box { position: fixed; top: 20px; left: 20px; width: 80px; height: 80px; border: 1px solid var(--glow-color); border-radius: 50%; opacity: 0.6; z-index: 2; pointer-events: none; }
-        .radar-line { position: absolute; top: 40px; left: 40px; width: 40px; height: 2px; background: var(--glow-color); transform-origin: left; animation: rotate 3s linear infinite; }
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            background-color: var(--bg-color); color: var(--glow-color);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative; box-sizing: border-box;
+        }
 
-        .data-stream { position: fixed; top: 20px; right: 20px; font-size: 10px; width: 180px; text-align: right; z-index: 2; pointer-events: none; }
-        .stream-line { color: var(--glow-color); margin-bottom: 5px; opacity: 0.8; }
+        /* CRT MONITOR GRID OVERLAY */
+        .crt-overlay {
+            content: " "; display: block; position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 99; background-size: 100% 4px, 4px 100%; pointer-events: none;
+            opacity: 1; transition: opacity 0.3s ease;
+        }
+        .crt-off { opacity: 0 !important; }
 
-        /* MATRIX CANVAS */
-        #matrixCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.45; pointer-events: none; }
+        #matrixCanvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; opacity: 0.45; pointer-events: none;
+        }
 
-        /* BOOT TERMINAL */
-        #bootTerminal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; padding: 45px; display: flex; flex-direction: column; }
-        .boot-line { margin-bottom: 12px; min-height: 22px; font-weight: bold; color: var(--glow-color); }
+        /* BOOT TERMINAL OVERLAY */
+        #bootTerminal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; z-index: 100; padding: 45px;
+            box-sizing: border-box; display: flex; flex-direction: column;
+            justify-content: flex-start; align-items: flex-start; font-size: 16px;
+        }
+        .boot-line { margin-bottom: 12px; min-height: 22px; font-weight: bold; letter-spacing: 1px; color: var(--glow-color); }
 
-        /* MAIN CONTAINER */
-        .container { position: relative; z-index: 5; max-width: 600px; margin: auto; border: 1px solid rgba(0, 255, 51, 0.3); padding: 30px; background: rgba(2, 2, 2, 0.94); display: none; text-align: center; }
-        h1 { color: var(--glow-color); }
+        /* OUTER SCI-FI FRAME */
+        .cyber-frame {
+            position: fixed; top: 15px; left: 15px; right: 15px; bottom: 15px;
+            border: 2px solid rgba(0, 255, 51, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 51, 0.15), inset 0 0 20px rgba(0, 255, 51, 0.15);
+            pointer-events: none; z-index: 10; border-radius: 12px;
+        }
+        .cyber-corner { position: absolute; width: 30px; height: 30px; border: 4px solid var(--glow-color); }
+        .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+        .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
+        .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
+        .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+
+        /* CRT TOGGLE SWITCH */
+        .crt-toggle-container {
+            position: fixed; top: 30px; right: 40px; z-index: 110;
+            display: flex; align-items: center; gap: 10px; font-size: 11px;
+            letter-spacing: 1px; font-weight: bold;
+        }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #222; border: 1px solid rgba(0, 255, 51, 0.4);
+            transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
+            background-color: rgba(0, 255, 51, 0.6); transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: rgba(0, 255, 51, 0.2); border-color: var(--glow-color); }
+        input:checked + .slider:before { transform: translateX(14px); background-color: var(--glow-color); box-shadow: 0 0 8px var(--glow-color); }
+
+        /* MAIN STATIONS CONTAINER */
+        .container {
+            border: 1px solid rgba(0, 255, 51, 0.3); padding: 30px;
+            background-color: rgba(2, 2, 2, 0.94); border-radius: 6px;
+            position: relative; z-index: 5; backdrop-filter: blur(8px);
+            max-width: 600px; width: 85%; max-height: 85vh;
+            overflow-y: auto; text-align: center; box-sizing: border-box;
+            box-shadow: 0 0 40px rgba(0, 255, 51, 0.2); display: none;
+        }
+
+        .system-hud {
+            display: flex; justify-content: space-between; font-size: 11px;
+            color: var(--glow-color); margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(0, 255, 51, 0.4); padding-bottom: 8px;
+        }
+
+        h1 { 
+            font-size: 24px; margin-top: 0; margin-bottom: 15px; 
+            text-transform: uppercase; letter-spacing: 3px; 
+            text-shadow: 0 0 15px var(--glow-color); animation: glitchEffect 4s infinite;
+        }
+
+        p.desc-text { font-size: 13px; line-height: 1.5; color: #d1d1d1; margin-bottom: 20px; }
+        .puzzle-image { max-width: 180px; width: 100%; height: auto; border: 1px solid var(--glow-color); margin-bottom: 20px; }
+
+        input[type="text"] {
+            background-color: #000; border: 1px solid rgba(0, 255, 51, 0.6); color: var(--glow-color);
+            padding: 12px; width: 85%; text-align: center; font-size: 15px; outline: none; letter-spacing: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        input[type="text"]:focus { border-color: var(--glow-color); box-shadow: 0 0 25px rgba(0, 255, 51, 0.4); }
+
+        button, .download-btn {
+            background-color: transparent; color: var(--glow-color); border: 1px solid var(--glow-color);
+            padding: 12px 35px; font-size: 13px; font-weight: bold; font-family: 'Courier New', Courier, monospace;
+            margin-top: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease;
+        }
+        button:hover, .download-btn:hover { background-color: var(--glow-color); color: #000; box-shadow: 0 0 30px var(--glow-color); }
+        .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 51, 51, 0.5); }
+
+        /* --- DECRYPTION PROGRESS BAR --- */
+        #progressSection { display: none; margin: 20px 0; }
+        .progress-container { width: 100%; border: 1px solid var(--glow-color); height: 20px; background: #000; position: relative; }
+        .progress-bar { width: 0%; height: 100%; background: var(--glow-color); box-shadow: 0 0 15px var(--glow-color); transition: width 0.1s linear; }
+        .progress-text { font-size: 12px; margin-top: 5px; letter-spacing: 2px; }
+
+        /* --- LOCKDOWN SCREEN --- */
+        #lockdownSection { display: none; animation: flashRed 0.3s infinite alternate; }
+        .lockdown-title { color: #ff3333; font-size: 28px; font-weight: bold; text-shadow: 0 0 20px #ff0000; letter-spacing: 4px; }
+
+        /* --- SUCCESS PANEL --- */
+        #downloadSection { display: none; margin-top: 10px; animation: fadeInGlitch 0.6s ease-in-out; }
+        .cyber-eye-container {
+            position: relative; margin: 15px auto 25px auto;
+            max-width: 420px; width: 100%; border: 2px solid var(--glow-color);
+            box-shadow: 0 0 35px rgba(0, 255, 51, 0.5); overflow: hidden; background: #000;
+            animation: eyeGlitchShake 3s infinite;
+        }
+        .cyber-eye {
+            width: 100%; height: auto; display: block;
+            image-rendering: pixelated; image-rendering: crisp-edges;
+            filter: grayscale(100%) brightness(1.3) contrast(2.5) sepia(100%) hue-rotate(90deg) saturate(600%);
+            mix-blend-mode: screen; opacity: 0.9;
+        }
+        .grid-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 255, 51, 0.3) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(0, 255, 51, 0.3) 1.5px, transparent 1.5px);
+            background-size: 8px 8px; pointer-events: none; z-index: 3;
+        }
+        .cyber-eye-container::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+            background: rgba(0, 255, 51, 0.9); box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color);
+            animation: cyberScan 2s linear infinite; z-index: 4;
+        }
+        .congrats-text {
+            color: #ffffff; font-size: 20px; font-weight: bold; letter-spacing: 4px;
+            text-shadow: 0 0 15px #00ff33, 0 0 30px #00ff33; animation: pulseText 1.5s infinite alternate; margin-bottom: 10px;
+        }
+
+        .footer { margin-top: 25px; font-size: 12px; color: rgba(0, 255, 51, 0.9); font-weight: bold; letter-spacing: 2px; }
+
+        @keyframes glitchEffect {
+            0%, 100% { transform: none; text-shadow: 0 0 15px var(--glow-color); }
+            95% { transform: none; }
+            96% { transform: skewX(-15deg); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
+            97% { transform: skewX(10deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
+            98% { transform: none; }
+        }
+        @keyframes fadeInGlitch { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes pulseText { 0% { opacity: 0.7; } 100% { opacity: 1; text-shadow: 0 0 25px #00ff33; } }
+        @keyframes cyberScan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+        @keyframes flashRed { 0% { background: #050505; } 100% { background: #200000; } }
+        @keyframes eyeGlitchShake {
+            0%, 93%, 98%, 100% { transform: translate(0, 0); }
+            94% { transform: translate(-2px, 1px); }
+            95% { transform: translate(2px, -1px); }
+        }
     </style>
 </head>
 <body>
 
-<div class="radar-box"><div class="radar-line"></div></div>
-<div class="data-stream" id="stream"></div>
+<audio id="bgMusic" src="Audio.mp3" loop></audio>
+<audio id="successMusic" src="Success.mp3"></audio>
+
+<div id="crtLayer" class="crt-overlay"></div>
+
+<div class="crt-toggle-container">
+    <span>CRT EFFECT</span>
+    <label class="switch">
+        <input type="checkbox" id="crtToggle" checked onclick="toggleCRT()">
+        <span class="slider"></span>
+    </label>
+</div>
 
 <div id="bootTerminal">
     <div id="line1" class="boot-line">>> INITIALIZING BOOT CORE...</div>
@@ -41,52 +199,89 @@
     <div id="line5" class="boot-line" style="color: #ffff00;"></div>
 </div>
 
+<div class="cyber-frame">
+    <div class="cyber-corner top-left"></div>
+    <div class="cyber-corner top-right"></div>
+    <div class="cyber-corner bottom-left"></div>
+    <div class="cyber-corner bottom-right"></div>
+</div>
+
 <canvas id="matrixCanvas"></canvas>
 
 <div class="container" id="mainContainer">
-    <h1>[ Project: ECHO REVEAL ]</h1>
-    <p>System Online. Access Authorized.</p>
+    <div class="system-hud">
+        <span id="statusHud">SYS_STATUS: ONLINE // BY_NIRA</span>
+        <span id="liveMetrics">CORE_LOAD: STABLE</span>
+    </div>
+
+    <div id="puzzleSection">
+        <h1>[ Project: ECHO REVEAL ]</h1>
+        <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
+        <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
+        <form onsubmit="event.preventDefault(); checkPuzzle();">
+            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off">
+            <br>
+            <button type="submit" onmouseenter="playBeep()">Execute Decrypt</button>
+        </form>
+        <div id="errorMessage" class="error"></div>
+    </div>
+
+    <div id="progressSection">
+        <div class="progress-text" id="progressStatus">DECRYPTING ARCHIVE CORES...</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="pBar"></div>
+        </div>
+        <div class="progress-text" id="pPercentage">0%</div>
+    </div>
+
+    <div id="lockdownSection">
+        <div class="lockdown-title">🚨 SYSTEM LOCKDOWN 🚨</div>
+        <p style="color: #ff3333; font-weight: bold; margin-top: 20px; font-size: 14px;">MAXIMUM DECRYPTION ATTEMPTS EXCEEDED.</p>
+        <p style="color: #ffffff; font-size: 12px;">SELF-DESTRUCT SEQUENCE HAS BEEN TRIGGERED. ALL VAULT DATA PURGED.</p>
+    </div>
+
+    <div id="downloadSection">
+        <div class="congrats-text">> ACCESS GRANTED &lt;</div>
+        <div class="cyber-eye-container">
+            <div class="grid-overlay"></div>
+            <img src="eye.png" alt="Cyber Pixel Eyes" class="cyber-eye">
+        </div>
+        <p style="color: #00ff33; font-weight: bold; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px;">THE SECRET ARCHIVE IS FULLY DECRYPTED.</p>
+        <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn" onmouseenter="playBeep()">Download Vault.7z (90MB)</a>
+    </div>
+
+    <div class="footer">© 2026 NIRA. All Rights Reserved.</div>
 </div>
 
 <script>
-    // 1. Data Stream Logic
-    const stream = document.getElementById("stream");
-    const files = ["/root/access...", "/user/sync/data...", "/sys/clock/core...", "/cloud/storage/7..."];
-    function addStream() {
-        const p = document.createElement("div");
-        p.className = "stream-line";
-        p.innerText = files[Math.floor(Math.random()*files.length)];
-        stream.appendChild(p);
-        if(stream.children.length > 6) stream.removeChild(stream.firstChild);
-    }
-    setInterval(addStream, 800);
+    const myAudio = document.getElementById("bgMusic");
+    const successAudio = document.getElementById("successMusic");
+    let hasInteracted = false;
+    let failCount = 0;
 
-    // 2. Matrix Rain with Clouds/Clocks/7
-    const canvas = document.getElementById('matrixCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    const symbols = ["0", "1", "☁", "[☁]", "🕒", "⏱", "7", "[7]"];
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#00ff33';
-        ctx.font = fontSize + 'px monospace';
-        
-        for(let i = 0; i < drops.length; i++) {
-            const text = symbols[Math.floor(Math.random() * symbols.length)];
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        }
+    function playBeep() {
+        try {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        } catch(e){}
     }
-    setInterval(draw, 50);
 
-    // 3. Boot Sequence
+    function toggleCRT() {
+        const crtLayer = document.getElementById("crtLayer");
+        const toggle = document.getElementById("crtToggle");
+        if (toggle.checked) crtLayer.classList.remove("crt-off");
+        else crtLayer.classList.add("crt-off");
+    }
+
     function typeWriter(text, elementId, speed, callback) {
         let i = 0;
         let elem = document.getElementById(elementId);
@@ -96,17 +291,88 @@
             if (i < text.length) {
                 elem.innerHTML += text.charAt(i);
                 i++;
+                if (i % 3 === 0) playBeep();
                 setTimeout(type, speed);
             } else if (callback) callback();
         }
         type();
     }
 
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const charArr = chars.split("");
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function renderBackground() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + 'px monospace';
+        for (let i = 0; i < drops.length; i++) {
+            const text = charArr[Math.floor(Math.random() * charArr.length)];
+            const x = i * fontSize; const y = drops[i] * fontSize;
+            ctx.fillStyle = failCount >= 3 ? 'rgba(255, 51, 51, 0.4)' : 'rgba(0, 255, 51, 0.5)';
+            ctx.fillText(text, x, y);
+            if (y > canvas.height && Math.random() > 0.95) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(renderBackground, 33);
+
+    function checkPuzzle() {
+        if (failCount >= 3) return;
+        var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
+        var secretToken = "ZGVkdW51"; 
+        if (btoa(userInput) === secretToken) {
+            document.getElementById("puzzleSection").style.display = "none";
+            document.getElementById("progressSection").style.display = "block";
+            let width = 0;
+            let interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    document.getElementById("progressSection").style.display = "none";
+                    document.getElementById("downloadSection").style.display = "block";
+                    myAudio.pause();
+                    successAudio.play();
+                } else {
+                    width += 2;
+                    document.getElementById("pBar").style.width = width + '%';
+                    document.getElementById("pPercentage").innerText = width + '%';
+                }
+            }, 40);
+        } else {
+            failCount++;
+            if (failCount >= 3) {
+                document.getElementById("puzzleSection").style.display = "none";
+                document.getElementById("lockdownSection").style.display = "block";
+                myAudio.pause();
+                // Play Siren logic included in original
+            } else {
+                document.getElementById("errorMessage").innerText = `ACCESS DENIED: INVALID KEY. ATTEMPTS REMAINING: ${3 - failCount}`;
+            }
+        }
+    }
+
+    window.addEventListener('click', () => {
+        if (!hasInteracted) { myAudio.play(); hasInteracted = true; }
+    }, { once: true });
+
+    // Boot Sequence
     setTimeout(() => {
-        typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 30, () => {
-            typeWriter(">> TRACING INCOMING CONNECTION...", "line3", 30, () => {
-                typeWriter(">> IDENTIFIED: 192.168.1.1 | LOC: COLOMBO, LK", "line4", 30, () => {
-                    typeWriter(">> STATUS: TRACKING ACTIVE. SYSTEM READY.", "line5", 30, () => {
+        typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 20, () => {
+            typeWriter(">> TRACING INCOMING CONNECTION...", "line3", 20, () => {
+                const fakeIP = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+                const location = "COLOMBO, LK [SECURE_NODE]";
+                
+                typeWriter(`>> IDENTIFIED: ${fakeIP} | LOC: ${location}`, "line4", 20, () => {
+                    typeWriter(">> STATUS: TRACKING ACTIVE. SYSTEM READY.", "line5", 20, () => {
                         setTimeout(() => {
                             document.getElementById("bootTerminal").style.display = "none";
                             document.getElementById("mainContainer").style.display = "block";
