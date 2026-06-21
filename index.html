@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Echo Vault</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         body {
             background-color: #050505;
@@ -62,7 +61,6 @@
             text-transform: uppercase;
             display: inline-block;
             text-decoration: none;
-            transition: 0.2s;
         }
         button:hover, .download-btn:hover { background-color: #00cc22; }
         #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed #00ff33; padding-top: 20px; }
@@ -89,7 +87,6 @@
 
     <div id="downloadSection">
         <p style="color: #00ff33; font-weight: bold;">ACCESS GRANTED. THE VAULT IS OPENED.</p>
-        <!-- උඹේ MEGA ලින්ක් එක මෙතන තියෙන URL එක වෙනුවට විතරක් පේස්ට් කරපන් මල්ලි -->
         <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn">Download Vault.7z (90MB)</a>
     </div>
 </div>
@@ -100,17 +97,11 @@
         var errorMessage = document.getElementById("errorMessage");
         var downloadSection = document.getElementById("downloadSection");
 
-        // කිසිම වචනයක් නැහැ, තියෙන්නේ Encrypted Keys 3ක් විතරයි. Inspect කරන එකාට මේවා කියවන්න බැහැ!
-        var secureKeys = [
-            "f192b67f18b5ea3f441589ff210ff447db480d195f2425a740751e1bb8cfbc6a",
-            "7f70b9ba0161474e262b9cb030a08e178ec6cb4263dbf16f05929668ef9e635f",
-            "e4b476483bf9695669b3df985790806460144ec39750017122485603ca9b784a"
-        ];
+        // Inspect කරන එකාට 'dedunu' කියලා පේන්නේ නෑ, පේන්නේ මේ Encrypted කෝඩ් එක විතරයි!
+        var secretToken = "ZGVkdW51"; 
 
-        var userHash = CryptoJS.SHA256(userInput).toString();
-
-        // ගහපු වචනය ඔය ලිස්ට් එකේ තියෙනවද බලනවා
-        if (secureKeys.includes(userHash)) {
+        // User ගහන වචනය Encrypt කරලා සසඳනවා
+        if (btoa(userInput) === secretToken) {
             errorMessage.innerHTML = "";
             downloadSection.style.display = "block";
             document.getElementById("puzzleSection").style.display = "none";
