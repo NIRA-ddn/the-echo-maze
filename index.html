@@ -21,12 +21,14 @@
         }
 
         /* CRT MONITOR GRID OVERLAY */
-        body::before {
+        .crt-overlay {
             content: " "; display: block; position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             z-index: 99; background-size: 100% 4px, 4px 100%; pointer-events: none;
+            opacity: 1; transition: opacity 0.3s ease;
         }
+        .crt-off { opacity: 0 !important; }
 
         #matrixCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -54,6 +56,28 @@
         .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
         .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
         .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+
+        /* CRT TOGGLE SWITCH */
+        .crt-toggle-container {
+            position: fixed; top: 30px; right: 40px; z-index: 110;
+            display: flex; align-items: center; gap: 10px; font-size: 11px;
+            letter-spacing: 1px; font-weight: bold;
+        }
+        .switch {
+            position: relative; display: inline-block; width: 34px; height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #222; border: 1px solid rgba(0, 255, 51, 0.4);
+            transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
+            background-color: rgba(0, 255, 51, 0.6); transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: rgba(0, 255, 51, 0.2); border-color: var(--glow-color); }
+        input:checked + .slider:before { transform: translateX(14px); background-color: var(--glow-color); box-shadow: 0 0 8px var(--glow-color); }
 
         /* MAIN STATIONS CONTAINER */
         .container {
@@ -94,6 +118,13 @@
         }
         button:hover, .download-btn:hover { background-color: var(--glow-color); color: #000; box-shadow: 0 0 30px var(--glow-color); }
         .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 51, 51, 0.5); }
+
+        /* --- HINT SYSTEM BOX --- */
+        .hint-box {
+            display: none; background: rgba(255, 51, 51, 0.1); border: 1px dashed #ff3333;
+            padding: 12px; margin-top: 15px; font-size: 12px; color: #ff9999;
+            border-radius: 4px; animation: flashHint 1s infinite alternate;
+        }
 
         /* --- DECRYPTION PROGRESS BAR --- */
         #progressSection { display: none; margin: 20px 0; }
@@ -147,6 +178,7 @@
         @keyframes pulseText { 0% { opacity: 0.7; } 100% { opacity: 1; text-shadow: 0 0 25px #00ff33; } }
         @keyframes cyberScan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
         @keyframes flashRed { 0% { background: #050505; } 100% { background: #200000; } }
+        @keyframes flashHint { 0% { border-color: #ff3333; background: rgba(255, 51, 51, 0.05); } 100% { border-color: #ff9999; background: rgba(255, 51, 51, 0.15); } }
         @keyframes eyeGlitchShake {
             0%, 93%, 98%, 100% { transform: translate(0, 0); }
             94% { transform: translate(-2px, 1px); }
@@ -158,6 +190,16 @@
 
 <audio id="bgMusic" src="Audio.mp3" loop></audio>
 <audio id="successMusic" src="Success.mp3"></audio>
+
+<div id="crtLayer" class="crt-overlay"></div>
+
+<div class="crt-toggle-container">
+    <span>CRT EFFECT</span>
+    <label class="switch">
+        <input type="checkbox" id="crtToggle" checked onclick="toggleCRT()">
+        <span class="slider"></span>
+    </label>
+</div>
 
 <div id="bootTerminal">
     <div id="line1" class="boot-line">>> INITIALIZING BOOT CORE...</div>
@@ -186,11 +228,16 @@
         <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
         <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
         <form onsubmit="event.preventDefault(); checkPuzzle();">
-            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off" onfocus="playBeep()">
+            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off" oninput="playTypeSound()">
             <br>
             <button type="submit" onmouseenter="playBeep()">Execute Decrypt</button>
         </form>
         <div id="errorMessage" class="error"></div>
+        
+        <div id="hintBox" class="hint-box">
+            ⚠️ SYSTEM OVERHEATING: AUTOMATIC HINT GENERATED... <br>
+            <strong style="color: #ffffff; letter-spacing: 1px;">CLUE: The key starts with the letter "D" (ද)...</strong>
+        </div>
     </div>
 
     <div id="progressSection">
@@ -229,6 +276,7 @@
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
+    // Standard terminal beep
     function playBeep() {
         try {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -243,6 +291,28 @@
         } catch(e){}
     }
 
+    // Mechanical keyboard typing sound effect
+    function playTypeSound() {
+        try {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            // Short mechanical click simulation
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150 + Math.random() * 100, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.04);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.04);
+        } catch(e){}
+    }
+
+    // Matrix glitch sound effect
     function playGlitchSound() {
         try {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -250,13 +320,14 @@
             const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(120 + Math.random() * 300, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12);
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.12);
         } catch(e){}
     }
 
+    // Siren alarm sound effect
     function playSiren() {
         setInterval(() => {
             try {
@@ -271,6 +342,17 @@
                 osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } catch(e){}
         }, 600);
+    }
+
+    // CRT overlay switcher feature
+    function toggleCRT() {
+        const crtLayer = document.getElementById("crtLayer");
+        const toggle = document.getElementById("crtToggle");
+        if (toggle.checked) {
+            crtLayer.classList.remove("crt-off");
+        } else {
+            crtLayer.classList.add("crt-off");
+        }
     }
 
     function typeWriter(text, elementId, speed, callback) {
@@ -365,11 +447,11 @@
             if (p.y + p.radius > canvas.height) { p.y = canvas.height - p.radius; p.vy *= -1; }
 
             let mDist = Math.hypot(p.x - mouseX, p.y - mouseY);
-            if (mDist < p.radius + 15 && !p.isGlitched) {
+            if (mDist < p.radius + 20 && !p.isGlitched) {
                 p.isGlitched = true;
                 p.glitchTimer = 25;
                 p.vx *= -1.8; p.vy *= -1.8;
-                playGlitchSound();
+                playGlitchSound(); // Sound triggers when mouse hits matrix symbols
             }
 
             ctx.font = p.size + 'px monospace';
@@ -443,6 +525,12 @@
 
         } else {
             failCount++;
+            
+            // Show dynamic clue system on 2nd fail count
+            if (failCount === 2) {
+                document.getElementById("hintBox").style.display = "block";
+            }
+
             if (failCount >= 3) {
                 puzzleSection.style.display = "none";
                 document.getElementById("lockdownSection").style.display = "block";
@@ -458,7 +546,6 @@
         }
     }
 
-    // EXECUTE IMMEDIATELY ON LOAD WITHOUT WAITING FOR DOM LISTENERS
     window.addEventListener('click', () => {
         if (!hasInteracted) {
             myAudio.play().catch(e => console.log("Music ready"));
@@ -466,7 +553,6 @@
         }
     }, { once: true });
 
-    // Start Boot Script safely
     setTimeout(() => {
         typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 20, () => {
             setTimeout(() => {
