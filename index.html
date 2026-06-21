@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Echo Vault</title>
-    
-    <!-- බ්‍රවුසර් ටැබ් එකේ Icon එක (image_5e9697.png) -->
     <link rel="icon" type="image/png" href="ECHO.png">
 
     <style>
         :root {
             --glow-color: #00ff33;
-            --bg-color: #020202;
+            --bright-glow: #ffffff;
+            --bg-color: #010101;
         }
 
         body, html {
@@ -30,19 +29,18 @@
             position: relative;
         }
 
-        /* CRT MONITOR EFFECT OVERLAY */
+        /* CRT MONITOR GRID OVERLAY */
         body::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
             z-index: 99;
-            background-size: 100% 3px, 3px 100%;
+            background-size: 100% 4px, 4px 100%;
             pointer-events: none;
         }
 
-        /* LIVE INTERACTIVE CANVAS */
         #matrixCanvas {
             position: fixed;
             top: 0;
@@ -50,87 +48,90 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            opacity: 0.38; 
+            opacity: 0.45; 
             pointer-events: none;
         }
 
-        /* MOVING RADAR SCAN LINE */
         .scanline-bar {
             position: fixed;
             top: -100px;
             left: 0;
             width: 100%;
-            height: 10px;
-            background: rgba(0, 255, 51, 0.1);
-            box-shadow: 0 0 20px var(--glow-color);
+            height: 15px;
+            background: rgba(0, 255, 51, 0.15);
+            box-shadow: 0 0 30px var(--glow-color);
             z-index: 2;
-            animation: radarScan 6s linear infinite;
+            animation: radarScan 5s linear infinite;
             pointer-events: none;
         }
 
-        /* ULTRA PRO CONTAINER (BREATHING GLOW EFFECT) */
+        /* CONTAINER WITH ADVANCED SHADOWS */
         .container {
             border: 1px solid var(--glow-color);
             padding: 45px 30px;
-            background-color: rgba(3, 3, 3, 0.96);
+            background-color: rgba(2, 2, 2, 0.97);
             border-radius: 4px;
             position: relative;
             z-index: 3;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             margin: 40px 0;
             max-width: 550px;
             width: 90%;
             box-sizing: border-box;
-            animation: containerPulse 4s infinite alternate;
+            animation: containerPulse 3s infinite alternate;
         }
 
-        /* TECH CORNER MARKS */
         .container::before, .container::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border: 3px solid var(--glow-color);
         }
         .container::before { top: -4px; left: -4px; border-right: none; border-bottom: none; }
         .container::after { bottom: -4px; right: -4px; border-left: none; border-top: none; }
 
-        /* REAL-TIME SYSTEM HUD */
         .system-hud {
             display: flex;
             justify-content: space-between;
             font-size: 10px;
-            color: rgba(0, 255, 51, 0.85);
+            color: rgba(0, 255, 51, 0.9);
             margin-top: -30px;
             margin-bottom: 25px;
-            border-bottom: 1px dashed rgba(0, 255, 51, 0.4);
+            border-bottom: 1px dashed rgba(0, 255, 51, 0.5);
             padding-bottom: 6px;
             letter-spacing: 1.5px;
         }
 
-        /* SCI-FI GLITCH TEXT H1 */
+        /* HYPER-GRAPHIC SUB TERMINAL */
+        .sub-terminal {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(0, 255, 51, 0.2);
+            font-size: 9px;
+            padding: 8px;
+            text-align: left;
+            margin-bottom: 15px;
+            height: 35px;
+            overflow: hidden;
+            color: rgba(0, 255, 51, 0.6);
+        }
+
         h1 { 
             font-size: 26px; 
             margin-top: 0;
             margin-bottom: 20px; 
             text-transform: uppercase; 
             letter-spacing: 4px; 
-            text-shadow: 0 0 10px var(--glow-color);
-            position: relative;
+            text-shadow: 0 0 15px var(--glow-color);
             animation: glitchEffect 3s infinite;
         }
 
-        /* TYPING EFFECT PARAGRAPH */
         p.desc-text { 
             font-size: 13px; 
             line-height: 1.6; 
-            color: #c4c4c4; 
+            color: #d1d1d1; 
             margin-bottom: 25px; 
             letter-spacing: 0.8px;
-            overflow: hidden;
-            white-space: normal;
-            border-right: 2px solid transparent;
-            animation: typingEffect 2s steps(40, end);
         }
         
         .puzzle-image {
@@ -138,14 +139,12 @@
             height: auto;
             border: 1px solid var(--glow-color);
             margin-bottom: 25px;
-            box-shadow: 0 0 25px rgba(0, 255, 51, 0.25);
-            filter: brightness(0.9) contrast(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 51, 0.3);
         }
 
-        /* INPUT BOX WITH BREATHING NEON HIGHLIGHT */
         input[type="text"] {
             background-color: #000;
-            border: 1px solid rgba(0, 255, 51, 0.5);
+            border: 1px solid rgba(0, 255, 51, 0.6);
             color: var(--glow-color);
             padding: 15px;
             width: 85%;
@@ -157,14 +156,13 @@
             letter-spacing: 4px;
             font-family: 'Courier New', Courier, monospace;
             transition: all 0.4s ease;
-            box-shadow: inset 0 0 8px rgba(0, 255, 51, 0.1);
+            box-shadow: inset 0 0 10px rgba(0, 255, 51, 0.1);
         }
         input[type="text"]:focus {
             border-color: var(--glow-color);
-            box-shadow: 0 0 30px rgba(0, 255, 51, 0.4), inset 0 0 10px rgba(0, 255, 51, 0.2);
+            box-shadow: 0 0 35px rgba(0, 255, 51, 0.5), inset 0 0 10px rgba(0, 255, 51, 0.3);
         }
 
-        /* CYBER MATRIX BUTTONS */
         button, .download-btn {
             background-color: transparent;
             color: var(--glow-color);
@@ -182,24 +180,26 @@
         button:hover, .download-btn:hover { 
             background-color: var(--glow-color);
             color: #000;
-            box-shadow: 0 0 35px var(--glow-color);
-            transform: scale(1.03);
+            box-shadow: 0 0 40px var(--glow-color);
+            transform: scale(1.02);
         }
 
         #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed rgba(0, 255, 51, 0.4); padding-top: 25px; }
-        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 51, 51, 0.6); }
+        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 51, 51, 0.7); }
 
+        /* ALL RIGHTS RESERVED - OPACITY වැඩි කලා */
         .footer {
             margin-top: 30px;
-            font-size: 11px;
-            color: rgba(0, 255, 51, 0.45);
-            letter-spacing: 1.5px;
+            font-size: 12px;
+            color: rgba(0, 255, 51, 0.85); 
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(0, 255, 51, 0.3);
         }
 
-        /* ADVANCED ANIMATIONS KOD */
         @keyframes containerPulse {
-            0% { box-shadow: 0 0 30px rgba(0, 255, 51, 0.15), inset 0 0 15px rgba(0, 255, 51, 0.05); }
-            100% { box-shadow: 0 0 50px rgba(0, 255, 51, 0.35), inset 0 0 25px rgba(0, 255, 51, 0.15); }
+            0% { box-shadow: 0 0 30px rgba(0, 255, 51, 0.2), inset 0 0 15px rgba(0, 255, 51, 0.05); }
+            100% { box-shadow: 0 0 60px rgba(0, 255, 51, 0.45), inset 0 0 25px rgba(0, 255, 51, 0.2); }
         }
         @keyframes radarScan {
             0% { top: -10px; opacity: 0; }
@@ -207,16 +207,12 @@
             95% { opacity: 1; }
             100% { top: 100%; opacity: 0; }
         }
-        @keyframes typingEffect {
-            from { max-height: 0; opacity: 0; }
-            to { max-height: 100px; opacity: 1; }
-        }
         @keyframes glitchEffect {
-            0%, 100% { transform: none; text-shadow: 0 0 10px var(--glow-color); }
-            92% { transform: none; }
-            93% { transform: skewX(-15deg) scaleY(0.9); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
-            94% { transform: skewX(10deg) scaleX(1.1); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
-            95% { transform: none; }
+            0%, 100% { transform: none; text-shadow: 0 0 15px var(--glow-color); }
+            94% { transform: none; }
+            95% { transform: skewX(-20deg); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; }
+            96% { transform: skewX(15deg); text-shadow: 3px 0 #ff0000, -3px 0 #0000ff; }
+            97% { transform: none; }
         }
     </style>
 </head>
@@ -225,11 +221,13 @@
 <canvas id="matrixCanvas"></canvas>
 <div class="scanline-bar"></div>
 
-<div class="container">
+<div class="container" onclick="startCyberMusic()">
     <div class="system-hud">
         <span>SYS_STATUS: ACTIVE // BY_NIRA</span>
         <span id="liveMetrics">CORE_LOAD: FETCHING...</span>
     </div>
+
+    <div class="sub-terminal" id="subTerminal">INITIALIZING MODULES...</div>
 
     <h1>[ Project: ECHO REVEAL ]</h1>
     
@@ -247,7 +245,7 @@
     </div>
 
     <div id="downloadSection">
-        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 20px #00ff33; animation: glitchEffect 2s infinite;">ACCESS GRANTED. THE VAULT IS OPENED.</p>
+        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 20px #00ff33;">ACCESS GRANTED. THE VAULT IS OPENED.</p>
         <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn" onmouseenter="playBeep()">Download Vault.7z (90MB)</a>
     </div>
 
@@ -257,14 +255,64 @@
 </div>
 
 <script>
-    // --- AUDIO SYSTEM USING WEB AUDIO API (NO EXTERNAL FILES NEEDED) ---
+    // --- ADVANCED AUDIO GENERATOR (AMBIENT MUSIC + FX) ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(freq, type, duration) {
+    let musicStarted = false;
+
+    // සයිබර්පන්ක් සංගීතය උත්පාදනය කිරීමේ කේතය
+    function startCyberMusic() {
+        if (musicStarted) return;
+        musicStarted = true;
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+
+        // Ambient Pad Synthesizer
+        function playChordNode(freq, startTime, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            // ලස්සනට සවුන්ඩ් එක ඇවිත් යන Attack / Release එකක්
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.02, startTime + 1.5);
+            gain.gain.setValueAtTime(0.02, startTime + duration - 1.5);
+            gain.gain.linearRampToValueAtTime(0, startTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playMusicLoop() {
+            const now = audioCtx.currentTime;
+            // Space Synth Chords (Am -> F -> C -> G)
+            const chords = [
+                [220, 261, 329], // Am
+                [174, 220, 261], // F
+                [261, 329, 392], // C
+                [196, 246, 293]  // G
+            ];
+            let timeOffset = 0;
+            chords.forEach((chord) => {
+                chord.forEach((note) => {
+                    playChordNode(note, now + timeOffset, 4);
+                });
+                timeOffset += 4;
+            });
+            setTimeout(playMusicLoop, 16000); // දිගටම ලූප් වෙනවා
+        }
+        playMusicLoop();
+    }
+
+    function playSound(freq, type, duration, endFreq = freq) {
         try {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = type;
-            osc.frequency.value = freq;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
             gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
             osc.connect(gain);
@@ -273,16 +321,25 @@
             osc.stop(audioCtx.currentTime + duration);
         } catch(e) {}
     }
-    function playBeep() { playSound(800, 'sine', 0.1); }
-    function playSuccess() { playSound(600, 'sine', 0.2); setTimeout(() => playSound(1200, 'sine', 0.4), 150); }
-    document.addEventListener('click', () => { if(audioCtx.state === 'suspended') audioCtx.resume(); });
 
-    // --- INTERACTIVE MATRIX CANVAS ---
+    function playBeep() { 
+        startCyberMusic();
+        playSound(900, 'sine', 0.12, 1100); // Soft Tech Fluid Beep
+    }
+    function playSuccess() { 
+        playSound(523.25, 'sine', 0.15); 
+        setTimeout(() => playSound(659.25, 'sine', 0.15), 100);
+        setTimeout(() => playSound(783.99, 'sine', 0.3), 200);
+    }
+    document.addEventListener('click', startCyberMusic);
+
+    // --- INTERACTIVE FLARE CANVAS ANIMATION ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
 
-    let mouseX = 0, mouseY = 0;
+    let mouseX = -1000, mouseY = -1000;
     window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+    window.addEventListener('touchmove', (e) => { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; });
 
     function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -291,7 +348,7 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZコンニチハアカサタනා";
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZコンニチハ";
     const charArr = chars.split("");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
@@ -300,7 +357,6 @@
     function drawMatrix() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#00ff33';
         ctx.font = fontSize + 'px monospace';
 
         for (let i = 0; i < drops.length; i++) {
@@ -308,14 +364,15 @@
             const x = i * fontSize;
             const y = drops[i] * fontSize;
 
-            // MOUSE PROXIMITY EFFECT (අකුරු මවුස් එක ගාවදී දීප්තිමත් වෙනවා)
             const dist = Math.hypot(x - mouseX, y - mouseY);
-            if (dist < 120) {
+            
+            // මවුස් එක ගාවදී අතිශය දීප්තිමත් වන HIGH GLOW EFFECT
+            if (dist < 100) {
                 ctx.fillStyle = '#ffffff';
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 20;
                 ctx.shadowColor = '#00ff33';
             } else {
-                ctx.fillStyle = '#00ff33';
+                ctx.fillStyle = 'rgba(0, 255, 51, 0.7)';
                 ctx.shadowBlur = 0;
             }
 
@@ -328,6 +385,17 @@
     }
     setInterval(drawMatrix, 33);
 
+    // --- SUB-TERMINAL LOG STREAMER ---
+    const logs = [
+        "SYS: EXECUTING INTRUSION DETECTION...", "NET: SYN_FLOOD PACKETS DETECTED", 
+        "MEM: ALLOCATING VAULT MEMORY BUFFER", "CORE: QUANTUM DECRYPTION LAYER ACTIVE",
+        "ECHO: LISTENING ON PORT 443...", "NIRA_OS: BYPASSING FIREWALL INTEGRITY"
+    ];
+    setInterval(() => {
+        const randomLog = logs[Math.floor(Math.random() * logs.length)];
+        document.getElementById('subTerminal').innerText = `> ${randomLog} [OK]`;
+    }, 2000);
+
     // --- REALTIME HUD DATA ---
     setInterval(() => {
         const load = Math.floor(Math.random() * (74 - 40 + 1)) + 40;
@@ -335,7 +403,7 @@
         document.getElementById('liveMetrics').innerText = `CORE_LOAD: ${load}% // RATE: ${rate}bps`;
     }, 1200);
 
-    // --- ENCRYPTED PUZZLE LOGIC ---
+    // --- PUZZLE LOGIC ---
     function checkPuzzle() {
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
         var errorMessage = document.getElementById("errorMessage");
@@ -348,7 +416,7 @@
             downloadSection.style.display = "block";
             document.getElementById("puzzleSection").style.display = "none";
         } else {
-            playSound(150, 'sawtooth', 0.5); // Access Denied බර සවුන්ඩ් එක
+            playSound(180, 'sawtooth', 0.6, 90); // ACCESS DENIED DEEP SYNTH
             errorMessage.innerHTML = "ACCESS DENIED: INVALID DECRYPTION KEY.";
             downloadSection.style.display = "none";
         }
