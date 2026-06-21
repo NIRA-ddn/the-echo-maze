@@ -196,7 +196,6 @@
     <div id="line2" class="boot-line"></div>
     <div id="line3" class="boot-line"></div>
     <div id="line4" class="boot-line"></div>
-    <div id="line5" class="boot-line" style="color: #ffff00;"></div>
 </div>
 
 <div class="cyber-frame">
@@ -275,6 +274,36 @@
         } catch(e){}
     }
 
+    function playGlitchSound() {
+        try {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120 + Math.random() * 300, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+        } catch(e){}
+    }
+
+    function playSiren() {
+        setInterval(() => {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e){}
+        }, 600);
+    }
+
     function toggleCRT() {
         const crtLayer = document.getElementById("crtLayer");
         const toggle = document.getElementById("crtToggle");
@@ -300,7 +329,9 @@
 
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
-    
+    let mouseX = -1000, mouseY = -1000;
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
     function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -311,9 +342,38 @@
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
+    const cyberPool = ["☁", "[☁]", "☁•", "7", "[7]", "•7•", "🕒", "⏱", "[CLK]"];
+    const particles = [];
+    const maxParticles = 22;
+
+    for (let i = 0; i < maxParticles; i++) {
+        let size = 18 + Math.floor(Math.random() * 16);
+        particles.push({
+            x: Math.random() * (canvas.width - 100) + 50,
+            y: Math.random() * (canvas.height - 100) + 50,
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3,
+            text: cyberPool[Math.floor(Math.random() * cyberPool.length)],
+            size: size,
+            radius: size * 0.8,
+            opacity: 0.12 + Math.random() * 0.15,
+            isGlitched: false,
+            glitchTimer: 0
+        });
+    }
+
     function renderBackground() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particles.length; i++) {
+            let p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+            if (p.x - p.radius < 0 || p.x + p.radius > canvas.width) p.vx *= -1;
+            if (p.y - p.radius < 0 || p.y + p.radius > canvas.height) p.vy *= -1;
+            ctx.font = p.size + 'px monospace';
+            ctx.fillStyle = failCount >= 3 ? `rgba(255, 0, 0, ${p.opacity})` : `rgba(0, 255, 51, ${p.opacity})`;
+            ctx.fillText(p.text, p.x, p.y);
+        }
         ctx.font = fontSize + 'px monospace';
         for (let i = 0; i < drops.length; i++) {
             const text = charArr[Math.floor(Math.random() * charArr.length)];
@@ -353,7 +413,7 @@
                 document.getElementById("puzzleSection").style.display = "none";
                 document.getElementById("lockdownSection").style.display = "block";
                 myAudio.pause();
-                // Play Siren logic included in original
+                playSiren();
             } else {
                 document.getElementById("errorMessage").innerText = `ACCESS DENIED: INVALID KEY. ATTEMPTS REMAINING: ${3 - failCount}`;
             }
@@ -364,20 +424,14 @@
         if (!hasInteracted) { myAudio.play(); hasInteracted = true; }
     }, { once: true });
 
-    // Boot Sequence
     setTimeout(() => {
         typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 20, () => {
-            typeWriter(">> TRACING INCOMING CONNECTION...", "line3", 20, () => {
-                const fakeIP = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
-                const location = "COLOMBO, LK [SECURE_NODE]";
-                
-                typeWriter(`>> IDENTIFIED: ${fakeIP} | LOC: ${location}`, "line4", 20, () => {
-                    typeWriter(">> STATUS: TRACKING ACTIVE. SYSTEM READY.", "line5", 20, () => {
-                        setTimeout(() => {
-                            document.getElementById("bootTerminal").style.display = "none";
-                            document.getElementById("mainContainer").style.display = "block";
-                        }, 1000);
-                    });
+            typeWriter(">> DEPLOYING KINETIC SECURITY SYMBOLS...", "line3", 20, () => {
+                typeWriter(">> CORES STABLE. DECRYPTOR INTERFACE MOUNTED.", "line4", 20, () => {
+                    setTimeout(() => {
+                        document.getElementById("bootTerminal").style.display = "none";
+                        document.getElementById("mainContainer").style.display = "block";
+                    }, 600);
                 });
             });
         });
