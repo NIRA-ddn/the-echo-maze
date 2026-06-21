@@ -63,9 +63,7 @@
             display: flex; align-items: center; gap: 10px; font-size: 11px;
             letter-spacing: 1px; font-weight: bold;
         }
-        .switch {
-            position: relative; display: inline-block; width: 34px; height: 20px;
-        }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
@@ -119,13 +117,6 @@
         button:hover, .download-btn:hover { background-color: var(--glow-color); color: #000; box-shadow: 0 0 30px var(--glow-color); }
         .error { color: #ff3333; margin-top: 15px; font-size: 13px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 51, 51, 0.5); }
 
-        /* --- HINT SYSTEM BOX --- */
-        .hint-box {
-            display: none; background: rgba(255, 51, 51, 0.1); border: 1px dashed #ff3333;
-            padding: 12px; margin-top: 15px; font-size: 12px; color: #ff9999;
-            border-radius: 4px; animation: flashHint 1s infinite alternate;
-        }
-
         /* --- DECRYPTION PROGRESS BAR --- */
         #progressSection { display: none; margin: 20px 0; }
         .progress-container { width: 100%; border: 1px solid var(--glow-color); height: 20px; background: #000; position: relative; }
@@ -136,7 +127,7 @@
         #lockdownSection { display: none; animation: flashRed 0.3s infinite alternate; }
         .lockdown-title { color: #ff3333; font-size: 28px; font-weight: bold; text-shadow: 0 0 20px #ff0000; letter-spacing: 4px; }
 
-        /* --- SUCCESS PANEL & PIXELATED GRID EYE EFFECT --- */
+        /* --- SUCCESS PANEL --- */
         #downloadSection { display: none; margin-top: 10px; animation: fadeInGlitch 0.6s ease-in-out; }
         .cyber-eye-container {
             position: relative; margin: 15px auto 25px auto;
@@ -178,7 +169,6 @@
         @keyframes pulseText { 0% { opacity: 0.7; } 100% { opacity: 1; text-shadow: 0 0 25px #00ff33; } }
         @keyframes cyberScan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
         @keyframes flashRed { 0% { background: #050505; } 100% { background: #200000; } }
-        @keyframes flashHint { 0% { border-color: #ff3333; background: rgba(255, 51, 51, 0.05); } 100% { border-color: #ff9999; background: rgba(255, 51, 51, 0.15); } }
         @keyframes eyeGlitchShake {
             0%, 93%, 98%, 100% { transform: translate(0, 0); }
             94% { transform: translate(-2px, 1px); }
@@ -228,16 +218,11 @@
         <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
         <p class="desc-text">The music holds the truth, but the vault remains locked. Find the hidden answer from the streams to unlock the final archive.</p>
         <form onsubmit="event.preventDefault(); checkPuzzle();">
-            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off" oninput="playTypeSound()">
+            <input type="text" id="puzzleInput" placeholder="ENTER DECRYPTION KEY..." autocomplete="off">
             <br>
             <button type="submit" onmouseenter="playBeep()">Execute Decrypt</button>
         </form>
         <div id="errorMessage" class="error"></div>
-        
-        <div id="hintBox" class="hint-box">
-            ⚠️ SYSTEM OVERHEATING: AUTOMATIC HINT GENERATED... <br>
-            <strong style="color: #ffffff; letter-spacing: 1px;">CLUE: The key starts with the letter "D" (ද)...</strong>
-        </div>
     </div>
 
     <div id="progressSection">
@@ -271,12 +256,10 @@
     const myAudio = document.getElementById("bgMusic");
     const successAudio = document.getElementById("successMusic");
     let hasInteracted = false;
-    let isDecrypted = false;
     let failCount = 0;
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Standard terminal beep
     function playBeep() {
         try {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -291,28 +274,6 @@
         } catch(e){}
     }
 
-    // Mechanical keyboard typing sound effect
-    function playTypeSound() {
-        try {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            // Short mechanical click simulation
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(150 + Math.random() * 100, audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.04);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.04);
-        } catch(e){}
-    }
-
-    // Matrix glitch sound effect
     function playGlitchSound() {
         try {
             if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -327,7 +288,6 @@
         } catch(e){}
     }
 
-    // Siren alarm sound effect
     function playSiren() {
         setInterval(() => {
             try {
@@ -344,15 +304,11 @@
         }, 600);
     }
 
-    // CRT overlay switcher feature
     function toggleCRT() {
         const crtLayer = document.getElementById("crtLayer");
         const toggle = document.getElementById("crtToggle");
-        if (toggle.checked) {
-            crtLayer.classList.remove("crt-off");
-        } else {
-            crtLayer.classList.add("crt-off");
-        }
+        if (toggle.checked) crtLayer.classList.remove("crt-off");
+        else crtLayer.classList.add("crt-off");
     }
 
     function typeWriter(text, elementId, speed, callback) {
@@ -366,14 +322,11 @@
                 i++;
                 if (i % 3 === 0) playBeep();
                 setTimeout(type, speed);
-            } else if (callback) {
-                callback();
-            }
+            } else if (callback) callback();
         }
         type();
     }
 
-    // --- MATRIX CANVAS & KINETIC BOUNCE ENGINE ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
     let mouseX = -1000, mouseY = -1000;
@@ -409,80 +362,25 @@
         });
     }
 
-    function handleCollisions() {
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                let p1 = particles[i]; let p2 = particles[j];
-                let dx = p2.x - p1.x; let dy = p2.y - p1.y;
-                let distance = Math.hypot(dx, dy);
-                let minDist = p1.radius + p2.radius;
-
-                if (distance < minDist) {
-                    let tempVx = p1.vx; let tempVy = p1.vy;
-                    p1.vx = p2.vx; p1.vy = p2.vy;
-                    p2.vx = tempVx; p2.vy = tempVy;
-                    let overlap = minDist - distance;
-                    let overlapX = (dx / distance) * overlap * 0.5;
-                    let overlapY = (dy / distance) * overlap * 0.5;
-                    p1.x -= overlapX; p1.y -= overlapY;
-                    p2.x += overlapX; p2.y += overlapY;
-                }
-            }
-        }
-    }
-
     function renderBackground() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        handleCollisions();
-
         for (let i = 0; i < particles.length; i++) {
             let p = particles[i];
             p.x += p.vx; p.y += p.vy;
-
-            if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
-            if (p.x + p.radius > canvas.width) { p.x = canvas.width - p.radius; p.vx *= -1; }
-            if (p.y - p.radius < 0) { p.y = p.radius; p.vy *= -1; }
-            if (p.y + p.radius > canvas.height) { p.y = canvas.height - p.radius; p.vy *= -1; }
-
-            let mDist = Math.hypot(p.x - mouseX, p.y - mouseY);
-            if (mDist < p.radius + 20 && !p.isGlitched) {
-                p.isGlitched = true;
-                p.glitchTimer = 25;
-                p.vx *= -1.8; p.vy *= -1.8;
-                playGlitchSound(); // Sound triggers when mouse hits matrix symbols
-            }
-
+            if (p.x - p.radius < 0 || p.x + p.radius > canvas.width) p.vx *= -1;
+            if (p.y - p.radius < 0 || p.y + p.radius > canvas.height) p.vy *= -1;
             ctx.font = p.size + 'px monospace';
-            if (p.isGlitched && p.glitchTimer > 0) {
-                ctx.fillStyle = `rgba(255, 51, 51, 0.8)`;
-                p.glitchTimer--;
-                if(p.glitchTimer === 0) p.isGlitched = false;
-            } else {
-                ctx.fillStyle = failCount >= 3 ? `rgba(255, 0, 0, ${p.opacity})` : `rgba(0, 255, 51, ${p.opacity})`;
-            }
-            
-            ctx.shadowBlur = p.isGlitched ? 15 : 8;
-            ctx.shadowColor = p.isGlitched ? '#ff0000' : '#00ff33';
+            ctx.fillStyle = failCount >= 3 ? `rgba(255, 0, 0, ${p.opacity})` : `rgba(0, 255, 51, ${p.opacity})`;
             ctx.fillText(p.text, p.x, p.y);
-            ctx.shadowBlur = 0;
         }
-
-        // MATRIX GRID LAYER
         ctx.font = fontSize + 'px monospace';
         for (let i = 0; i < drops.length; i++) {
             const text = charArr[Math.floor(Math.random() * charArr.length)];
             const x = i * fontSize; const y = drops[i] * fontSize;
-            const dist = Math.hypot(x - mouseX, y - mouseY);
-            
-            if (dist < 120) {
-                ctx.fillStyle = failCount >= 3 ? '#ff9999' : '#ffffff'; ctx.shadowBlur = 25; ctx.shadowColor = failCount >= 3 ? '#ff0000' : '#00ff33';
-            } else {
-                ctx.fillStyle = failCount >= 3 ? 'rgba(255, 51, 51, 0.4)' : 'rgba(0, 255, 51, 0.5)'; ctx.shadowBlur = 0;
-            }
+            ctx.fillStyle = failCount >= 3 ? 'rgba(255, 51, 51, 0.4)' : 'rgba(0, 255, 51, 0.5)';
             ctx.fillText(text, x, y);
-            if (y > canvas.height && Math.random() * 0.975 > 0.95) drops[i] = 0;
+            if (y > canvas.height && Math.random() > 0.95) drops[i] = 0;
             drops[i]++;
         }
     }
@@ -490,83 +388,52 @@
 
     function checkPuzzle() {
         if (failCount >= 3) return;
-
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
-        var errorMessage = document.getElementById("errorMessage");
-        var puzzleSection = document.getElementById("puzzleSection");
-        var progressSection = document.getElementById("progressSection");
-        var downloadSection = document.getElementById("downloadSection");
         var secretToken = "ZGVkdW51"; 
-
         if (btoa(userInput) === secretToken) {
-            isDecrypted = true;
-            errorMessage.innerHTML = "";
-            puzzleSection.style.display = "none";
-            progressSection.style.display = "block";
-
+            document.getElementById("puzzleSection").style.display = "none";
+            document.getElementById("progressSection").style.display = "block";
             let width = 0;
-            let bar = document.getElementById("pBar");
-            let percentText = document.getElementById("pPercentage");
-            
             let interval = setInterval(() => {
                 if (width >= 100) {
                     clearInterval(interval);
-                    progressSection.style.display = "none";
-                    downloadSection.style.display = "block";
+                    document.getElementById("progressSection").style.display = "none";
+                    document.getElementById("downloadSection").style.display = "block";
                     myAudio.pause();
-                    successAudio.play().catch(e => console.log("Audio Error"));
+                    successAudio.play();
                 } else {
                     width += 2;
-                    bar.style.width = width + '%';
-                    percentText.innerText = width + '%';
-                    if(width % 10 === 0) playBeep();
+                    document.getElementById("pBar").style.width = width + '%';
+                    document.getElementById("pPercentage").innerText = width + '%';
                 }
             }, 40);
-
         } else {
             failCount++;
-            
-            // Show dynamic clue system on 2nd fail count
-            if (failCount === 2) {
-                document.getElementById("hintBox").style.display = "block";
-            }
-
             if (failCount >= 3) {
-                puzzleSection.style.display = "none";
+                document.getElementById("puzzleSection").style.display = "none";
                 document.getElementById("lockdownSection").style.display = "block";
-                document.getElementById("statusHud").innerText = "SYS_STATUS: CRITICAL_LOCKDOWN";
-                document.getElementById("statusHud").style.color = "#ff3333";
-                document.getElementById("liveMetrics").innerText = "CORE_LOAD: OVERLOADED";
-                document.getElementById("liveMetrics").style.color = "#ff3333";
                 myAudio.pause();
                 playSiren();
             } else {
-                errorMessage.innerHTML = `ACCESS DENIED: INVALID KEY. ATTEMPTS REMAINING: ${3 - failCount}`;
+                document.getElementById("errorMessage").innerText = `ACCESS DENIED: INVALID KEY. ATTEMPTS REMAINING: ${3 - failCount}`;
             }
         }
     }
 
     window.addEventListener('click', () => {
-        if (!hasInteracted) {
-            myAudio.play().catch(e => console.log("Music ready"));
-            hasInteracted = true;
-        }
+        if (!hasInteracted) { myAudio.play(); hasInteracted = true; }
     }, { once: true });
 
     setTimeout(() => {
         typeWriter(">> LOADING SECURE VAULT CORES... [OK]", "line2", 20, () => {
-            setTimeout(() => {
-                typeWriter(">> DEPLOYING KINETIC SECURITY SYMBOLS...", "line3", 20, () => {
+            typeWriter(">> DEPLOYING KINETIC SECURITY SYMBOLS...", "line3", 20, () => {
+                typeWriter(">> CORES STABLE. DECRYPTOR INTERFACE MOUNTED.", "line4", 20, () => {
                     setTimeout(() => {
-                        typeWriter(">> CORES STABLE. DECRYPTOR INTERFACE MOUNTED.", "line4", 20, () => {
-                            setTimeout(() => {
-                                document.getElementById("bootTerminal").style.display = "none";
-                                document.getElementById("mainContainer").style.display = "block";
-                            }, 600);
-                        });
-                    }, 300);
+                        document.getElementById("bootTerminal").style.display = "none";
+                        document.getElementById("mainContainer").style.display = "block";
+                    }, 600);
                 });
-            }, 300);
+            });
         });
     }, 400);
 </script>
