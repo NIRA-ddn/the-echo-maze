@@ -28,10 +28,10 @@
             z-index: 99; background-size: 100% 4px, 4px 100%; pointer-events: none;
         }
 
-        /* MATRIX, CLOUDS & SIMBLES CANVAS */
+        /* MATRIX & PHYSICS ENGINE CANVAS */
         #matrixCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; opacity: 0.4; pointer-events: none;
+            z-index: 1; opacity: 0.45; pointer-events: none;
         }
 
         /* OUTER SCI-FI FRAME */
@@ -179,6 +179,7 @@
         <span id="liveMetrics">CORE_LOAD: STABLE</span>
     </div>
 
+    <!-- MAIN PUZZLE SCREEN -->
     <div id="puzzleSection">
         <h1>[ Project: ECHO REVEAL ]</h1>
         <img src="ECHO.png" alt="Mystery Clue" class="puzzle-image">
@@ -191,6 +192,7 @@
         <div id="errorMessage" class="error"></div>
     </div>
 
+    <!-- REVEAL PANEL -->
     <div id="downloadSection">
         <div class="congrats-text">> CONGRATULATIONS &lt;</div>
         
@@ -239,7 +241,7 @@
         } catch(e){}
     }
 
-    // --- MATRIX CANVAS & MULTI CYBER PARTICLE SYSTEM ---
+    // --- MATRIX CANVAS & KINETIC BOUNCE ENGINE ---
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
     let mouseX = -1000, mouseY = -1000;
@@ -249,65 +251,106 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Matrix Setup
+    // Matrix Falling Characters Setup
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const charArr = chars.split("");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
-    // --- CYBER ELEMENTS PARTICLE LIST ---
-    // වලාකුළු, 7 සහ ඔරලෝසු සංකේත වෙන වෙනම ස්ටයිල් වලින්
+    // Physics Cyber Elements Setup
     const cyberPool = [
-        { text: "☁", type: "cloud" }, { text: "[☁]", type: "cloud" }, { text: "☁•", type: "cloud" },
-        { text: "7", type: "seven" }, { text: "[7]", type: "seven" }, { text: "•7•", type: "seven" },
-        { text: "🕒", type: "clock" }, { text: "⏱", type: "clock" }, { text: "[CLK]", type: "clock" }
+        "☁", "[☁]", "☁•", 
+        "7", "[7]", "•7•", 
+        "🕒", "⏱", "[CLK]"
     ];
     
-    const particleList = [];
-    const maxParticles = 18; // ස්ක්‍රීන් එකේ පාවෙන මුළු සංකේත ගණන
+    const particles = [];
+    const maxParticles = 20; // තිරයේ ගැටෙන මුළු ද්‍රව්‍ය ගණන
 
     for (let i = 0; i < maxParticles; i++) {
-        let source = cyberPool[Math.floor(Math.random() * cyberPool.length)];
-        particleList.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            speed: 0.2 + Math.random() * 0.7, // වෙන වෙනම වේගයන්
-            text: source.text,
-            type: source.type,
-            size: 15 + Math.floor(Math.random() * 18), // වෙන වෙනම ප්‍රමාණයන්
-            opacity: 0.10 + Math.random() * 0.14 // මෘදුව පෙනෙන ඔපෑසිටිය
+        let size = 18 + Math.floor(Math.random() * 16);
+        particles.push({
+            x: Math.random() * (canvas.width - 100) + 50,
+            y: Math.random() * (canvas.height - 100) + 50,
+            // X සහ Y අක්ෂ ඔස්සේ Random දිශාවන් සහ වේගයන් (Velocity)
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: (Math.random() - 0.5) * 2.5,
+            text: cyberPool[Math.floor(Math.random() * cyberPool.length)],
+            size: size,
+            radius: size * 0.8, // හැප්පීම ගණනය කිරීමට ගන්නා සීමාව
+            opacity: 0.12 + Math.random() * 0.15
         });
     }
 
+    // COLLISION DETECTION ENGINE (එකිනෙකා ගැටීම පරීක්ෂා කර Bounce කිරීම)
+    function handleCollisions() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                let p1 = particles[i];
+                let p2 = particles[j];
+
+                // දුර ගණනය කිරීමේ ජ්‍යාමිතික සූත්‍රය
+                let dx = p2.x - p1.x;
+                let dy = p2.y - p1.y;
+                let distance = Math.hypot(dx, dy);
+                let minDist = p1.radius + p2.radius;
+
+                if (distance < minDist) {
+                    // හැප්පුණු සැනින් Velocity අගයන් මාරු කර ප්‍රතිවිරුද්ධ පැතිවලට විසි කිරීම (Elastic Collision)
+                    let tempVx = p1.vx;
+                    let tempVy = p1.vy;
+                    
+                    p1.vx = p2.vx;
+                    p1.vy = p2.vy;
+                    
+                    p2.vx = tempVx;
+                    p2.vy = tempVy;
+
+                    // එක මත එක හිරවීම වැලැක්වීම (Overlap Fix)
+                    let overlap = minDist - distance;
+                    let overlapX = (dx / distance) * overlap * 0.5;
+                    let overlapY = (dy / distance) * overlap * 0.5;
+                    
+                    p1.x -= overlapX;
+                    p1.y -= overlapY;
+                    p2.x += overlapX;
+                    p2.y += overlapY;
+                }
+            }
+        }
+    }
+
     function renderBackground() {
-        // Trail effect
         ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 1. DRAW FLOATING CYBER PARTICLES (BACKGROUND LAYER)
-        for (let i = 0; i < particleList.length; i++) {
-            let p = particleList[i];
+        // 1. UPDATE & DRAW BOUNCING CYBER PARTICLES
+        handleCollisions();
+
+        for (let i = 0; i < particles.length; i++) {
+            let p = particles[i];
+            
+            // චලනය කිරීම
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // වෝල් බෝඩර්ස් වල හැප්පෙද්දී Bounce වීම (Wall Collision)
+            if (p.x - p.radius < 0) { p.x = p.radius; p.vx *= -1; }
+            if (p.x + p.radius > canvas.width) { p.x = canvas.width - p.radius; p.vx *= -1; }
+            if (p.y - p.radius < 0) { p.y = p.radius; p.vy *= -1; }
+            if (p.y + p.radius > canvas.height) { p.y = canvas.height - p.radius; p.vy *= -1; }
+
+            // ඇඳීම සහ Neon Glow එක දීම
             ctx.font = p.size + 'px monospace';
             ctx.fillStyle = `rgba(0, 255, 51, ${p.opacity})`;
-            
-            // Neon Glow Effect
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 10;
             ctx.shadowColor = '#00ff33';
             ctx.fillText(p.text, p.x, p.y);
-            ctx.shadowBlur = 0; // reset blur
-
-            // මෘදුව දකුණට පාවීම
-            p.x += p.speed;
-            
-            // ස්ක්‍රීන් එකෙන් පිට වුනොත් වමෙන් නැවත මතුවීම
-            if (p.x > canvas.width + 80) {
-                p.x = -80;
-                p.y = Math.random() * canvas.height;
-            }
+            ctx.shadowBlur = 0;
         }
 
-        // 2. DRAW MATRIX FALLING CODE (FOREGROUND LAYER)
+        // 2. DRAW MATRIX FOREGROUND LAYER
         ctx.font = fontSize + 'px monospace';
         for (let i = 0; i < drops.length; i++) {
             const text = charArr[Math.floor(Math.random() * charArr.length)];
