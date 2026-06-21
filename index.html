@@ -5,89 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Echo Vault</title>
     <style>
-        /* මුළු පිටුවේම පසුබිම සහ මැට්‍රික්ස් ග්‍රිඩ් එක */
-        body {
-            background-color: #030303;
-            background-image: 
-                linear-gradient(rgba(0, 255, 51, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 51, 0.03) 1px, transparent 1px);
-            background-size: 20px 20px;
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
             color: #00ff33;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
+            align-items: center;
             box-sizing: border-box;
-            overflow-x: hidden;
         }
 
-        /* ප්‍රධාන Container එක - Cyber Box design */
+        /* මැට්‍රික්ස් රේන් කැන්වස් එක */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.15; /* අකුරු වැස්ස පසුබිමට විතරක් පේන්න */
+        }
+
+        /* ස්කෑන් වෙන ලයින් ඉෆෙක්ට් එක */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* ප්‍රධාන හැකර් බොක්ස් එක */
         .container {
             border: 1px solid #00ff33;
             padding: 40px 30px;
-            background-color: rgba(6, 6, 6, 0.95);
-            box-shadow: 0 0 30px rgba(0, 255, 51, 0.15), inset 0 0 15px rgba(0, 255, 51, 0.05);
+            background-color: rgba(5, 5, 5, 0.93);
+            box-shadow: 0 0 40px rgba(0, 255, 51, 0.2), inset 0 0 20px rgba(0, 255, 51, 0.1);
             max-width: 550px;
-            width: 100%;
+            width: 90%;
             box-sizing: border-box;
             border-radius: 4px;
             position: relative;
+            z-index: 3;
+            backdrop-filter: blur(4px);
         }
 
-        /* කොන් හතරේ හැකර් මාර්ක්ස් (Tech Corners) */
+        /* ටෙක් බෝඩර් කොන් 4 */
         .container::before, .container::after {
             content: '';
             position: absolute;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #00ff33;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #00ff33;
         }
-        .container::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-        .container::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+        .container::before { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+        .container::after { bottom: -3px; right: -3px; border-left: none; border-top: none; }
 
-        /* NIRA Tech Tag - Box එක ඇතුළේ උඩින්ම පෙනෙන Signature එක */
-        .tech-tag {
-            text-align: right;
+        /* ලයිව් සිස්ටම් ස්ටේටස් එක */
+        .system-hud {
+            display: flex;
+            justify-content: space-between;
             font-size: 10px;
-            letter-spacing: 1px;
-            color: rgba(0, 255, 51, 0.6);
+            color: rgba(0, 255, 51, 0.7);
             margin-top: -25px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(0, 255, 51, 0.2);
+            padding-bottom: 5px;
+            letter-spacing: 1px;
         }
 
-        /* මාතෘකාවේ Flicker ඇනිමේෂන් එක */
         h1 { 
             font-size: 24px; 
             margin-top: 0;
             margin-bottom: 20px; 
             text-transform: uppercase; 
             letter-spacing: 3px; 
-            text-shadow: 0 0 10px rgba(0, 255, 51, 0.5);
-            animation: glitch 3s infinite;
+            text-shadow: 0 0 10px rgba(0, 255, 51, 0.6);
+            animation: textFlicker 4s infinite;
         }
 
-        p { font-size: 13px; line-height: 1.6; color: #a3a3a3; margin-bottom: 25px; letter-spacing: 0.5px; }
+        p { font-size: 13px; line-height: 1.6; color: #b5b5b5; margin-bottom: 25px; letter-spacing: 0.5px; }
         
-        /* රූපයේ බෝඩර් සහ ග්ලෝ එක */
         .puzzle-image {
             max-width: 100%;
             height: auto;
-            border: 1px solid rgba(0, 255, 51, 0.5);
+            border: 1px solid rgba(0, 255, 51, 0.4);
             margin-bottom: 25px;
-            box-shadow: 0 0 20px rgba(0, 255, 51, 0.1);
-            border-radius: 2px;
+            box-shadow: 0 0 20px rgba(0, 255, 51, 0.15);
         }
 
-        /* Input බොක්ස් එක - Glow on Focus */
+        /* දිලිසෙන ඉන්පුට් බොක්ස් එක */
         input[type="text"] {
             background-color: #000;
-            border: 1px solid rgba(0, 255, 51, 0.4);
+            border: 1px solid rgba(0, 255, 51, 0.5);
             color: #00ff33;
             padding: 14px;
             width: 85%;
@@ -96,66 +115,79 @@
             margin-top: 10px;
             outline: none;
             box-sizing: border-box;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             transition: all 0.3s ease;
-            box-shadow: inset 0 0 5px rgba(0, 255, 51, 0.1);
+            animation: pulseGlow 2s infinite alternate;
         }
         input[type="text"]:focus {
             border-color: #00ff33;
-            box-shadow: 0 0 15px rgba(0, 255, 51, 0.3), inset 0 0 5px rgba(0, 255, 51, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 51, 0.4), inset 0 0 5px rgba(0, 255, 51, 0.2);
+            animation: none;
         }
 
-        /* හැකර් ස්ටයිල් බටන්ස් */
+        /* හැකර් බටන් */
         button, .download-btn {
             background-color: transparent;
             color: #00ff33;
             border: 1px solid #00ff33;
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-size: 14px;
             font-weight: bold;
             font-family: 'Courier New', Courier, monospace;
             margin-top: 25px;
             cursor: pointer;
             text-transform: uppercase;
-            display: inline-block;
-            text-decoration: none;
             letter-spacing: 2px;
             transition: all 0.3s ease;
-            position: relative;
+            box-shadow: 0 0 10px rgba(0, 255, 51, 0.1);
         }
         button:hover, .download-btn:hover { 
             background-color: #00ff33;
             color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 51, 0.4);
+            box-shadow: 0 0 25px rgba(0, 255, 51, 0.5);
         }
 
         #downloadSection { display: none; margin-top: 30px; border-top: 1px dashed rgba(0, 255, 51, 0.3); padding-top: 25px; }
-        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255, 51, 51, 0.3); }
+        .error { color: #ff3333; margin-top: 18px; font-size: 13px; font-weight: bold; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255, 51, 51, 0.4); }
 
-        /* සයිට් එකේ යටම තියෙන Copyright එක */
         .footer {
-            margin-top: 25px;
+            position: absolute;
+            bottom: -35px;
+            left: 0;
+            right: 0;
             font-size: 11px;
             color: rgba(0, 255, 51, 0.4);
             letter-spacing: 1px;
         }
 
-        /* ඇනිමේෂන් කෝඩ් */
-        @keyframes glitch {
+        /* ඇනිමේෂන්ස් */
+        @keyframes textFlicker {
             0%, 100% { opacity: 1; }
-            95% { opacity: 1; }
-            96% { opacity: 0.8; }
-            97% { opacity: 1; }
-            98% { opacity: 0.9; }
-            99% { opacity: 1; }
+            32% { opacity: 1; }
+            33% { opacity: 0.8; }
+            34% { opacity: 1; }
+            65% { opacity: 1; }
+            66% { opacity: 0.7; }
+            67% { opacity: 1; }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(0, 255, 51, 0.2); border-color: rgba(0, 255, 51, 0.4); }
+            100% { box-shadow: 0 0 15px rgba(0, 255, 51, 0.4); border-color: rgba(0, 255, 51, 0.8); }
         }
     </style>
 </head>
 <body>
 
+<!-- මැට්‍රික්ස් අකුරු වැස්ස පසුබිම -->
+<canvas id="matrixCanvas"></canvas>
+<div class="scanlines"></div>
+
 <div class="container">
-    <!-- සයිට් එක ඇතුළේ උඩින්ම පෙනෙන NIRA Tag එක -->
-    <div class="tech-tag">SYS_STATUS: ACTIVE // BY_NIRA</div>
+    <!-- ලයිව් අප්ඩේට් වෙන ටෙක් හඩ් එක -->
+    <div class="system-hud">
+        <span>SYS_STATUS: ACTIVE // BY_NIRA</span>
+        <span id="liveMetrics">CORE_LOAD: 42% // RATE: 98.4bps</span>
+    </div>
 
     <h1>[ Project: ECHO REVEAL ]</h1>
     
@@ -173,26 +205,64 @@
     </div>
 
     <div id="downloadSection">
-        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 10px rgba(0,255,51,0.4);">ACCESS GRANTED. THE VAULT IS OPENED.</p>
+        <p style="color: #00ff33; font-weight: bold; text-shadow: 0 0 15px rgba(0,255,51,0.5);">ACCESS GRANTED. THE VAULT IS OPENED.</p>
         <a href="https://transfer.it/t/xS2fnnohSJoB" target="_blank" class="download-btn">Download Vault.7z (90MB)</a>
+    </div>
+
+    <div class="footer">
+        © 2026 NIRA. All Rights Reserved.
     </div>
 </div>
 
-<!-- සයිට් එකේ යටින්ම තියෙන ©NIRA එක -->
-<div class="footer">
-    © 2026 NIRA. All Rights Reserved.
-</div>
-
 <script>
+    // --- MATRIX BACKGROUND ANIMATION ---
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZコンニチハアカサタナ";
+    const charArr = chars.split("");
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#00ff33';
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = charArr[Math.floor(Math.random() * charArr.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() * 0.975 > 0.95) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 35);
+
+    // --- LIVE HUD METRICS SIMULATION ---
+    setInterval(() => {
+        const load = Math.floor(Math.random() * (68 - 35 + 1)) + 35;
+        const rate = (Math.random() * (99.9 - 95.2) + 95.2).toFixed(1);
+        document.getElementById('liveMetrics').innerText = `CORE_LOAD: ${load}% // RATE: ${rate}bps`;
+    }, 1500);
+
+    // --- PUZZLE DECRYPTION LOGIC ---
     function checkPuzzle() {
         var userInput = document.getElementById("puzzleInput").value.trim().toLowerCase();
         var errorMessage = document.getElementById("errorMessage");
         var downloadSection = document.getElementById("downloadSection");
-
-        // Inspect කරන එකාට 'dedunu' කියලා පේන්නේ නෑ, පේන්නේ මේ Encrypted කෝඩ් එක විතරයි!
         var secretToken = "ZGVkdW51"; 
 
-        // User ගහන වචනය Encrypt කරලා සසඳනවා
         if (btoa(userInput) === secretToken) {
             errorMessage.innerHTML = "";
             downloadSection.style.display = "block";
